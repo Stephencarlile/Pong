@@ -53,7 +53,8 @@ public class PongV2 extends Application {
             primaryStage.setScene(gameScreen);
         });
 
-        Rectangle humanPaddle = new Rectangle (20,20, 150,15);
+        Rectangle humanPaddle = new Rectangle (20,20, 15,150);
+
         Rectangle computerPaddle = new Rectangle (550,20,150,15);
         Circle ball = new Circle(500,500,15);
         Button quit = new Button("QUIT");
