@@ -14,6 +14,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 //Can you see this ?
+//Test again
 public class Pong extends Application {
 
     //variable
