@@ -59,9 +59,9 @@ public class PongV2 extends Application {
 
         //GAME SCREEN----------------------------------------------------------------------------------------------------------------------------------------------------------------------
         //create the window widgets of the GAME SCREEN
-        Rectangle humanPaddle = new Rectangle(20, 20, 15, 150);
+        Rectangle humanPaddle = new Rectangle(0, 20, 15, 150);
+        Rectangle computerPaddle = new Rectangle(785, 20, 15, 150);
 
-        Rectangle computerPaddle = new Rectangle(550, 20, 150, 15);
         Circle ball = new Circle(500, 500, 15);
         Button quit = new Button("QUIT");
         quit.setLayoutX(WIDTH / 2 - 40);
@@ -73,6 +73,9 @@ public class PongV2 extends Application {
         //EVENT Listeners for GAME SCREEN
         quit.setOnMouseClicked(e -> {
             primaryStage.setScene(overScreen);
+        });
+        gameScreen.setOnMouseMoved(e -> {
+            humanPaddle.setY(e.getY());
         });
 
         //GAME OVER SCREEN----------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -94,7 +97,7 @@ public class PongV2 extends Application {
             primaryStage.setScene(gameScreen);
         });
 
-       // --------------------------------------------------------------------------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------------------------------------
         //shows the window of the application, beginning with the WELCOME SCREEN
         primaryStage.setTitle("P O N G");
         primaryStage.setScene(welcomeScreen);
