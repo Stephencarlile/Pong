@@ -28,8 +28,8 @@ public class PongV2 extends Application {
     private static final double BALL_RADIUS = 15;
     private int ballYSpeed = 1;
     private int ballXSpeed = 1;
-    private boolean gameStarted=false;
-    private int playerScore=0;
+    private boolean gameStarted = false;
+    private int playerScore = 0;
 
     @Override
     /**
@@ -65,7 +65,7 @@ public class PongV2 extends Application {
         //EVENT Listeners for WELCOME SCREEN
         start.setOnMouseClicked(e -> {
             primaryStage.setScene(gameScreen);
-            gameStarted=true;
+            gameStarted = true;
         });
 
         //GAME SCREEN----------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -114,16 +114,28 @@ public class PongV2 extends Application {
         primaryStage.setScene(welcomeScreen);
         primaryStage.show();
     }
-    public void resetGame(){
-        gameStarted=false;//game not in session
+
+    /**
+     * Resets all variables and positions to default for game start
+     */
+    public void resetGame() {
+        gameStarted = false;//game not in session
 
         //Sets ball speed back to zero and position to default
-        ballXSpeed=0;
-        ballYSpeed=0;
+        ballXSpeed = 0;
+        ballYSpeed = 0;
 
         //Set paddle positions and size back to default
 
         //Sets score back to zero
-        playerScore=0;
+        playerScore = 0;
     }
+
+    /**
+     * Starts the game and defines the game logic.
+     */
+    public void gamePlay() {
+
+    }
+
 }
