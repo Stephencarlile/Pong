@@ -32,6 +32,9 @@ public class PongV2 extends Application {
     private int playerScore=0;
 
     @Override
+    /**
+     * Defines the game windows and nodes + some game logic
+     */
     public void start(Stage primaryStage) throws Exception {
         //Declares the 3 panes, one for each screen
         Pane p1 = new Pane();
