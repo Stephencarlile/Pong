@@ -23,6 +23,13 @@ import javafx.stage.Stage;
 public class PongV2 extends Application {
     private static final int WIDTH = 800;
     private static final int HEIGHT = 600;
+    private static final int PLAYER_HEIGHT = 100;
+    private static final int PLAYER_WIDTH = 15;
+    private static final double BALL_RADIUS = 15;
+    private int ballYSpeed = 1;
+    private int ballXSpeed = 1;
+    private boolean gameStarted=false;
+    private int playerScore=0;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -55,14 +62,15 @@ public class PongV2 extends Application {
         //EVENT Listeners for WELCOME SCREEN
         start.setOnMouseClicked(e -> {
             primaryStage.setScene(gameScreen);
+            gameStarted=true;
         });
 
         //GAME SCREEN----------------------------------------------------------------------------------------------------------------------------------------------------------------------
         //create the window widgets of the GAME SCREEN
-        Rectangle humanPaddle = new Rectangle(0, 20, 15, 150);
-        Rectangle computerPaddle = new Rectangle(785, 20, 15, 150);
+        Rectangle humanPaddle = new Rectangle(0, 20, PLAYER_WIDTH, PLAYER_HEIGHT);
+        Rectangle computerPaddle = new Rectangle(785, 20, PLAYER_WIDTH, PLAYER_HEIGHT);
 
-        Circle ball = new Circle(500, 500, 15);
+        Circle ball = new Circle(500, 500, BALL_RADIUS);
         Button quit = new Button("QUIT");
         quit.setLayoutX(WIDTH / 2 - 40);
         quit.setLayoutY(HEIGHT / 2);
@@ -102,5 +110,17 @@ public class PongV2 extends Application {
         primaryStage.setTitle("P O N G");
         primaryStage.setScene(welcomeScreen);
         primaryStage.show();
+    }
+    public void resetGame(){
+        gameStarted=false;//game not in session
+
+        //Sets ball speed back to zero and position to default
+        ballXSpeed=0;
+        ballYSpeed=0;
+
+        //Set paddle positions and size back to default
+
+        //Sets score back to zero
+        playerScore=0;
     }
 }
