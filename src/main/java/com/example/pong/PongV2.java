@@ -26,10 +26,22 @@ public class PongV2 extends Application {
     private static final int PLAYER_HEIGHT = 100;
     private static final int PLAYER_WIDTH = 15;
     private static final double BALL_RADIUS = 15;
+    private int ballXPos = WIDTH / 2;
+    private int ballYPos = WIDTH / 2;
     private int ballYSpeed = 1;
     private int ballXSpeed = 1;
     private boolean gameStarted = false;
     private int playerScore = 0;
+    private int playerXPos = 0;
+    private double computerXPos = WIDTH - PLAYER_WIDTH;
+    private double playerYPos = WIDTH / 2;
+    private double computerYPos = WIDTH / 2;
+
+    //Global node declarations
+    //create the window widgets of the GAME SCREEN
+    Rectangle humanPaddle = new Rectangle(0, 20, PLAYER_WIDTH, PLAYER_HEIGHT);
+    Rectangle computerPaddle = new Rectangle(785, 20, PLAYER_WIDTH, PLAYER_HEIGHT);
+    Circle ball = new Circle(500, 500, BALL_RADIUS);
 
     @Override
     /**
@@ -66,14 +78,11 @@ public class PongV2 extends Application {
         start.setOnMouseClicked(e -> {
             primaryStage.setScene(gameScreen);
             gameStarted = true;
+            gamePlay();
         });
 
         //GAME SCREEN----------------------------------------------------------------------------------------------------------------------------------------------------------------------
         //create the window widgets of the GAME SCREEN
-        Rectangle humanPaddle = new Rectangle(0, 20, PLAYER_WIDTH, PLAYER_HEIGHT);
-        Rectangle computerPaddle = new Rectangle(785, 20, PLAYER_WIDTH, PLAYER_HEIGHT);
-
-        Circle ball = new Circle(500, 500, BALL_RADIUS);
         Button quit = new Button("QUIT");
         quit.setLayoutX(WIDTH / 2 - 40);
         quit.setLayoutY(HEIGHT / 2);
@@ -89,6 +98,16 @@ public class PongV2 extends Application {
             humanPaddle.setY(e.getY());
         });
 
+        humanPaddle.setOnKeyPressed(e -> {
+            switch (e.getCode()) {
+                case DOWN:
+                    humanPaddle.setY(humanPaddle.getY() + 10);
+                    break;
+                case UP:
+                    humanPaddle.setY(humanPaddle.getY() - 10);
+                    break;
+            }
+        });
         //GAME OVER SCREEN----------------------------------------------------------------------------------------------------------------------------------------------------------------------
         //create the window widgets of the GAME OVER SCREEN
         Button quit2 = new Button("QUIT");
@@ -135,6 +154,18 @@ public class PongV2 extends Application {
      * Starts the game and defines the game logic.
      */
     public void gamePlay() {
+        if (gameStarted) {
+            //set ball movement
+            ball.setLayoutX((ball.getLayoutX()+ballXSpeed));
+            ball.setLayoutY((ball.getLayoutY()+ballYSpeed));
+
+            //simple computer opponent who is following the ball
+            if (ballXPos < WIDTH - WIDTH / 4) {
+                computerYPos = ballYPos - PLAYER_HEIGHT / 2;
+            } else {
+                computerYPos = ballYPos > computerYPos + PLAYER_HEIGHT / 2 ? computerYPos += 1 : computerYPos - 1;
+            }
+        }
 
     }
 
