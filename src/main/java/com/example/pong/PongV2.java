@@ -95,7 +95,7 @@ public class PongV2 extends Application {
         });
 
        // --------------------------------------------------------------------------------------------------------------------------------------
-        //shows the window of the application, begining with the WELCOME SCREEN
+        //shows the window of the application, beginning with the WELCOME SCREEN
         primaryStage.setTitle("P O N G");
         primaryStage.setScene(welcomeScreen);
         primaryStage.show();
