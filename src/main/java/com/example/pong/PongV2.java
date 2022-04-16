@@ -1,20 +1,21 @@
 package com.example.pong;
 
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.PathTransition;
+import javafx.animation.Timeline;
 import javafx.application.Application;
-import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+
+import java.util.Random;
+
 
 /**
  * Class defines Nicolas and Stephen's version of the classic PONG GAME
@@ -42,6 +43,8 @@ public class PongV2 extends Application {
     Rectangle humanPaddle = new Rectangle(0, 20, PLAYER_WIDTH, PLAYER_HEIGHT);
     Rectangle computerPaddle = new Rectangle(785, 20, PLAYER_WIDTH, PLAYER_HEIGHT);
     Circle ball = new Circle(500, 500, BALL_RADIUS);
+
+    Random rand = new Random();
 
     @Override
     /**
@@ -79,6 +82,7 @@ public class PongV2 extends Application {
             primaryStage.setScene(gameScreen);
             gameStarted = true;
             gamePlay();
+
         });
 
         //GAME SCREEN----------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -97,8 +101,7 @@ public class PongV2 extends Application {
         gameScreen.setOnMouseMoved(e -> {
             humanPaddle.setY(e.getY());
         });
-
-        humanPaddle.setOnKeyPressed(e -> {
+        gameScreen.setOnKeyPressed(e -> {
             switch (e.getCode()) {
                 case DOWN:
                     humanPaddle.setY(humanPaddle.getY() + 10);
@@ -108,6 +111,9 @@ public class PongV2 extends Application {
                     break;
             }
         });
+
+
+
         //GAME OVER SCREEN----------------------------------------------------------------------------------------------------------------------------------------------------------------------
         //create the window widgets of the GAME OVER SCREEN
         Button quit2 = new Button("QUIT");
@@ -132,6 +138,23 @@ public class PongV2 extends Application {
         primaryStage.setTitle("P O N G");
         primaryStage.setScene(welcomeScreen);
         primaryStage.show();
+
+        //Ball animation
+        PathTransition pathTransition = new PathTransition();
+        pathTransition.setDuration(javafx.util.Duration.seconds(3));
+        pathTransition.setPath(createPath());
+        pathTransition.setNode(ball);
+        pathTransition.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
+        pathTransition.setCycleCount(1);
+        pathTransition.setAutoReverse(false);
+        pathTransition.setOnFinished(e -> {
+
+            pathTransition.setPath(createPath());
+            pathTransition.play();
+
+        });
+        pathTransition.play();
+
     }
 
     /**
@@ -154,19 +177,17 @@ public class PongV2 extends Application {
      * Starts the game and defines the game logic.
      */
     public void gamePlay() {
-        if (gameStarted) {
-            //set ball movement
-            ball.setLayoutX((ball.getLayoutX()+ballXSpeed));
-            ball.setLayoutY((ball.getLayoutY()+ballYSpeed));
+    }
+    private Path createPath() {
 
-            //simple computer opponent who is following the ball
-            if (ballXPos < WIDTH - WIDTH / 4) {
-                computerYPos = ballYPos - PLAYER_HEIGHT / 2;
-            } else {
-                computerYPos = ballYPos > computerYPos + PLAYER_HEIGHT / 2 ? computerYPos += 1 : computerYPos - 1;
-            }
-        }
+        int loc = rand.nextInt(600 - 10 + 1) + 10; // min=10 , max=600
+        Path path = new Path();
+        path.getElements().add(new MoveTo(20, 20));
+        path.getElements().add(new LineTo(loc, 600));
+
+        return path;
 
     }
+
 
 }
