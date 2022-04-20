@@ -112,8 +112,6 @@ public class PongV2 extends Application {
             }
         });
 
-
-
         //GAME OVER SCREEN----------------------------------------------------------------------------------------------------------------------------------------------------------------------
         //create the window widgets of the GAME OVER SCREEN
         Button quit2 = new Button("QUIT");
