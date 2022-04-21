@@ -16,7 +16,6 @@ import javafx.util.Duration;
 
 import java.util.Random;
 
-
 /**
  * Class defines Nicolas and Stephen's version of the classic PONG GAME
  * CS2040 Final Project
@@ -89,7 +88,7 @@ public class PongV2 extends Application {
         //create the window widgets of the GAME SCREEN
         Button quit = new Button("QUIT");
         quit.setLayoutX(WIDTH / 2 - 40);
-        quit.setLayoutY(HEIGHT / 2);
+        quit.setLayoutY(10);
 
         // defines the pane hierarchy for the WELCOME SCREEN
         p2.getChildren().addAll(humanPaddle, computerPaddle, ball, quit);
@@ -101,22 +100,23 @@ public class PongV2 extends Application {
         gameScreen.setOnMouseMoved(e -> {
             humanPaddle.setY(e.getY());
         });
-        gameScreen.setOnKeyPressed(e -> {
-            switch (e.getCode()) {
-                case DOWN:
-                    humanPaddle.setY(humanPaddle.getY() + 10);
-                    break;
-                case UP:
-                    humanPaddle.setY(humanPaddle.getY() - 10);
-                    break;
-            }
-        });
+
+//        gameScreen.setOnKeyPressed(e -> {
+//            switch (e.getCode()) {
+//                case DOWN:
+//                    humanPaddle.setY(humanPaddle.getY() + 10);
+//                    break;
+//                case UP:
+//                    humanPaddle.setY(humanPaddle.getY() - 10);
+//                    break;
+//            }
+//        });
 
         //GAME OVER SCREEN----------------------------------------------------------------------------------------------------------------------------------------------------------------------
         //create the window widgets of the GAME OVER SCREEN
         Button quit2 = new Button("QUIT");
         quit2.setLayoutX(WIDTH / 2 - 40);
-        quit2.setLayoutY(HEIGHT / 2);
+        quit2.setLayoutY(10);
         Button restart = new Button("RESTART");
         Text gameOver = new Text("GAME OVER !");
 
@@ -138,20 +138,28 @@ public class PongV2 extends Application {
         primaryStage.show();
 
         //Ball animation
-        PathTransition pathTransition = new PathTransition();
-        pathTransition.setDuration(javafx.util.Duration.seconds(3));
-        pathTransition.setPath(createPath());
-        pathTransition.setNode(ball);
-        pathTransition.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
-        pathTransition.setCycleCount(1);
-        pathTransition.setAutoReverse(false);
-        pathTransition.setOnFinished(e -> {
+        PathTransition ptBall = new PathTransition();
+        ptBall.setDuration(javafx.util.Duration.seconds(3));
 
-            pathTransition.setPath(createPath());
-            pathTransition.play();
+
+        Line ballPath = new Line(800, HEIGHT / 2, 0, HEIGHT / 2);
+
+        ptBall.setPath(ballPath);//start going left
+        ptBall.setNode(ball);
+        ptBall.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
+        ptBall.setInterpolator(Interpolator.LINEAR);
+        ptBall.setCycleCount(1);
+        ptBall.setAutoReverse(false);
+
+        ptBall.setOnFinished(e -> {
+            //if hits the battle, reverse:
+            ptBall.setRate(ptBall.getRate() * -1);
+            ptBall.play();
+
+            //else, lose a point / gameover because you missed
 
         });
-        pathTransition.play();
+        ptBall.play();
 
     }
 
@@ -175,7 +183,9 @@ public class PongV2 extends Application {
      * Starts the game and defines the game logic.
      */
     public void gamePlay() {
+
     }
+
     private Path createPath() {
 
         int loc = rand.nextInt(600 - 10 + 1) + 10; // min=10 , max=600
