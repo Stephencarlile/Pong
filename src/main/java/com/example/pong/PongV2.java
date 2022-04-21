@@ -37,6 +37,7 @@ public class PongV2 extends Application {
     private double playerYPos = WIDTH / 2;
     private double computerYPos = WIDTH / 2;
 
+
     //Global node declarations
     //create the window widgets of the GAME SCREEN
     Rectangle humanPaddle = new Rectangle(0, 20, PLAYER_WIDTH, PLAYER_HEIGHT);
@@ -45,24 +46,27 @@ public class PongV2 extends Application {
 
     Random rand = new Random();
 
+    //Declares the 3 panes, one for each screen
+    Pane p1 = new Pane();
+    Pane p2 = new Pane();
+    Pane p3 = new Pane();
+
+    //Declare the 3 screens of the game
+    Scene welcomeScreen = new Scene(p1, WIDTH, HEIGHT);
+    Scene gameScreen = new Scene(p2, WIDTH, HEIGHT);
+    Scene overScreen = new Scene(p3, WIDTH, HEIGHT);
+
     //Ball animation
     PathTransition ptBall = new PathTransition();
+
+    Stage primaryStage = new Stage();
 
     @Override
     /**
      * Defines the game windows and nodes + some game logic
      */
     public void start(Stage primaryStage) throws Exception {
-        //Declares the 3 panes, one for each screen
-        Pane p1 = new Pane();
-        Pane p2 = new Pane();
-        Pane p3 = new Pane();
-
-        //Declare the 3 screens of the game
-        Scene welcomeScreen = new Scene(p1, WIDTH, HEIGHT);
-        Scene gameScreen = new Scene(p2, WIDTH, HEIGHT);
-        Scene overScreen = new Scene(p3, WIDTH, HEIGHT);
-
+        this.primaryStage = primaryStage;
         //WELCOME SCREEN----------------------------------------------------------------------------------------------------------------------------------------------------------------------
         //create the window widgets of the WELCOME SCREEN
         Text welcome = new Text(WIDTH / 2 - 100, HEIGHT / 3, "Welcome to PONG!");
@@ -101,7 +105,6 @@ public class PongV2 extends Application {
             primaryStage.setScene(overScreen);
         });
 
-
 //        gameScreen.setOnKeyPressed(e -> {
 //            switch (e.getCode()) {
 //                case DOWN:
@@ -112,6 +115,17 @@ public class PongV2 extends Application {
 //                    break;
 //            }
 //        });
+        gameScreen.setOnMouseMoved(e -> {
+            humanPaddle.setY(e.getY());
+            //System.out.printf("py: %f, px: %f, by: %f, bx: %f \n", humanPaddle.getY(),humanPaddle.getX(),ball.getTranslateY(),ball.getTranslateX());
+
+        });
+
+        ball.translateYProperty().addListener(ov ->
+        {
+            computerPaddle.setY((ball.getTranslateY() - PLAYER_HEIGHT / 2));
+        });
+
 
         //GAME OVER SCREEN----------------------------------------------------------------------------------------------------------------------------------------------------------------------
         //create the window widgets of the GAME OVER SCREEN
@@ -134,57 +148,11 @@ public class PongV2 extends Application {
 
         });
 
-        // --------------------------------------------------------------------------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         //shows the window of the application, beginning with the WELCOME SCREEN
         primaryStage.setTitle("P O N G");
         primaryStage.setScene(welcomeScreen);
         primaryStage.show();
-
-
-        //BALL ANIMATION
-        ptBall.setDuration(javafx.util.Duration.seconds(3));
-        Line ballPath = new Line(800, HEIGHT / 2, 0, HEIGHT / 2);
-
-        ptBall.setPath(ballPath);//start going left
-        ptBall.setNode(ball);
-        ptBall.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
-        ptBall.setInterpolator(Interpolator.LINEAR);
-        ptBall.setCycleCount(1);
-        ptBall.setAutoReverse(false);
-
-        ptBall.setOnFinished(e -> {
-            //if hits the battle, reverse:
-            if (ball.getTranslateX() <= 15) {
-                if ((humanPaddle.getY() <= ball.getTranslateY() && ball.getTranslateY() <= (humanPaddle.getY() + PLAYER_HEIGHT))) {
-                    ptBall.setRate(ptBall.getRate() * -1);
-                    ptBall.play();
-
-                }
-
-            } else {
-                if (ball.getTranslateX() >= 785) {
-                    if ((computerPaddle.getY() <= ball.getTranslateY() && ball.getTranslateY() <= (computerPaddle.getY() + PLAYER_HEIGHT))) {
-                        ptBall.setRate(ptBall.getRate() * -1);
-                        ptBall.play();
-
-                    }
-                }
-            }
-
-            //else, lose a point / gameover because you missed
-
-
-        });
-        ptBall.play();
-
-        gameScreen.setOnMouseMoved(e -> {
-            humanPaddle.setY(e.getY());
-            //System.out.printf("py: %f, px: %f, by: %f, bx: %f \n", humanPaddle.getY(),humanPaddle.getX(),ball.getTranslateY(),ball.getTranslateX());
-            //System.out.println(humanPaddle.getY()+"," + humanPaddle.getX()+", " +ball.getCenterY()+", " +ball.getCenterX());
-        });
-
-       // ball.getTranslateY().addListener()
-
 
     }
 
@@ -208,19 +176,48 @@ public class PongV2 extends Application {
      * Starts the game and defines the game logic.
      */
     public void gamePlay() {
+        //BALL ANIMATION
+        ptBall.setDuration(javafx.util.Duration.seconds(3));
+        Line ballPath = new Line(785, HEIGHT -10, 15, 10);
+
+        ptBall.setPath(ballPath);//start going left
+        ptBall.setNode(ball);
+        ptBall.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
+        ptBall.setInterpolator(Interpolator.LINEAR);
+        ptBall.setCycleCount(1);
+        ptBall.setAutoReverse(false);
+
+        ptBall.setOnFinished(e -> {
+            //if hits the battle, reverse:
+            if (ball.getTranslateX() <= 15) {
+                if ((humanPaddle.getY() <= ball.getTranslateY() && ball.getTranslateY() <= (humanPaddle.getY() + PLAYER_HEIGHT))) {
+                    ptBall.setRate(ptBall.getRate() * -1.2);
+                    ptBall.play();
+
+                } else {
+                    primaryStage.setScene(overScreen);
+                    ptBall.stop();
+
+                }
+
+            } else {
+                if (ball.getTranslateX() >= 785) {
+                    if ((computerPaddle.getY() <= ball.getTranslateY() && ball.getTranslateY() <= (computerPaddle.getY() + PLAYER_HEIGHT))) {
+                        ptBall.setRate(ptBall.getRate() * -1);
+                        ptBall.play();
+
+                    } else {//else, lose a point / Gameover because you missed
+                        primaryStage.setScene(overScreen);
+                        ptBall.stop();
+
+                    }
+                }
+            }
+
+        });
+        ptBall.play();
+
 
     }
-
-    private Path createPath() {
-
-        int loc = rand.nextInt(600 - 10 + 1) + 10; // min=10 , max=600
-        Path path = new Path();
-        path.getElements().add(new MoveTo(20, 20));
-        path.getElements().add(new LineTo(loc, 600));
-
-        return path;
-
-    }
-
 
 }
