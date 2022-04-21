@@ -40,10 +40,13 @@ public class PongV2 extends Application {
     //Global node declarations
     //create the window widgets of the GAME SCREEN
     Rectangle humanPaddle = new Rectangle(0, 20, PLAYER_WIDTH, PLAYER_HEIGHT);
-    Rectangle computerPaddle = new Rectangle(785, 20, PLAYER_WIDTH, PLAYER_HEIGHT);
-    Circle ball = new Circle(500, 500, BALL_RADIUS);
+    Rectangle computerPaddle = new Rectangle(785, (HEIGHT / 2 - 75), PLAYER_WIDTH, PLAYER_HEIGHT);
+    Circle ball = new Circle(0, 0, BALL_RADIUS);
 
     Random rand = new Random();
+
+    //Ball animation
+    PathTransition ptBall = new PathTransition();
 
     @Override
     /**
@@ -97,9 +100,7 @@ public class PongV2 extends Application {
         quit.setOnMouseClicked(e -> {
             primaryStage.setScene(overScreen);
         });
-        gameScreen.setOnMouseMoved(e -> {
-            humanPaddle.setY(e.getY());
-        });
+
 
 //        gameScreen.setOnKeyPressed(e -> {
 //            switch (e.getCode()) {
@@ -129,6 +130,8 @@ public class PongV2 extends Application {
         });
         restart.setOnMouseClicked(e -> {
             primaryStage.setScene(gameScreen);
+            ptBall.play();
+
         });
 
         // --------------------------------------------------------------------------------------------------------------------------------------
@@ -137,11 +140,9 @@ public class PongV2 extends Application {
         primaryStage.setScene(welcomeScreen);
         primaryStage.show();
 
-        //Ball animation
-        PathTransition ptBall = new PathTransition();
+
+        //BALL ANIMATION
         ptBall.setDuration(javafx.util.Duration.seconds(3));
-
-
         Line ballPath = new Line(800, HEIGHT / 2, 0, HEIGHT / 2);
 
         ptBall.setPath(ballPath);//start going left
@@ -153,13 +154,37 @@ public class PongV2 extends Application {
 
         ptBall.setOnFinished(e -> {
             //if hits the battle, reverse:
-            ptBall.setRate(ptBall.getRate() * -1);
-            ptBall.play();
+            if (ball.getTranslateX() <= 15) {
+                if ((humanPaddle.getY() <= ball.getTranslateY() && ball.getTranslateY() <= (humanPaddle.getY() + PLAYER_HEIGHT))) {
+                    ptBall.setRate(ptBall.getRate() * -1);
+                    ptBall.play();
+
+                }
+
+            } else {
+                if (ball.getTranslateX() >= 785) {
+                    if ((computerPaddle.getY() <= ball.getTranslateY() && ball.getTranslateY() <= (computerPaddle.getY() + PLAYER_HEIGHT))) {
+                        ptBall.setRate(ptBall.getRate() * -1);
+                        ptBall.play();
+
+                    }
+                }
+            }
 
             //else, lose a point / gameover because you missed
 
+
         });
         ptBall.play();
+
+        gameScreen.setOnMouseMoved(e -> {
+            humanPaddle.setY(e.getY());
+            //System.out.printf("py: %f, px: %f, by: %f, bx: %f \n", humanPaddle.getY(),humanPaddle.getX(),ball.getTranslateY(),ball.getTranslateX());
+            //System.out.println(humanPaddle.getY()+"," + humanPaddle.getX()+", " +ball.getCenterY()+", " +ball.getCenterX());
+        });
+
+       // ball.getTranslateY().addListener()
+
 
     }
 
