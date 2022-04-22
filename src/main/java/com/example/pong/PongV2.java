@@ -124,6 +124,9 @@ public class PongV2 extends Application {
         ball.translateYProperty().addListener(ov ->
         {
             computerPaddle.setY((ball.getTranslateY() - PLAYER_HEIGHT / 2));
+            if (ball.getTranslateY()>=HEIGHT || ball.getTranslateY()<= 0){
+                ptBall.setRate(ptBall.getRate() * -1);
+            }
         });
 
 
@@ -162,12 +165,6 @@ public class PongV2 extends Application {
     public void resetGame() {
         gameStarted = false;//game not in session
 
-        //Sets ball speed back to zero and position to default
-        ballXSpeed = 0;
-        ballYSpeed = 0;
-
-        //Set paddle positions and size back to default
-
         //Sets score back to zero
         playerScore = 0;
     }
@@ -178,7 +175,7 @@ public class PongV2 extends Application {
     public void gamePlay() {
         //BALL ANIMATION
         ptBall.setDuration(javafx.util.Duration.seconds(3));
-        Line ballPath = new Line(785, HEIGHT -10, 15, 10);
+        Line ballPath = new Line(700, HEIGHT, 15, 100);
 
         ptBall.setPath(ballPath);//start going left
         ptBall.setNode(ball);
@@ -191,7 +188,7 @@ public class PongV2 extends Application {
             //if hits the battle, reverse:
             if (ball.getTranslateX() <= 15) {
                 if ((humanPaddle.getY() <= ball.getTranslateY() && ball.getTranslateY() <= (humanPaddle.getY() + PLAYER_HEIGHT))) {
-                    ptBall.setRate(ptBall.getRate() * -1.2);
+                    ptBall.setRate(ptBall.getRate() * -1.1);
                     ptBall.play();
 
                 } else {
@@ -219,5 +216,4 @@ public class PongV2 extends Application {
 
 
     }
-
 }
