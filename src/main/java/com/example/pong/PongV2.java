@@ -7,11 +7,16 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.*;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.util.Duration;
 
 import java.util.Random;
@@ -32,6 +37,7 @@ public class PongV2 extends Application {
     private int ballXSpeed = 1;
     private boolean gameStarted = false;
     private int playerScore = 0;
+    private int lives = 3;
     private int playerXPos = 0;
     private double computerXPos = WIDTH - PLAYER_WIDTH;
     private double playerYPos = WIDTH / 2;
@@ -43,6 +49,10 @@ public class PongV2 extends Application {
     Rectangle humanPaddle = new Rectangle(0, 20, PLAYER_WIDTH, PLAYER_HEIGHT);
     Rectangle computerPaddle = new Rectangle(785, (HEIGHT / 2 - 75), PLAYER_WIDTH, PLAYER_HEIGHT);
     Circle ball = new Circle(0, 0, BALL_RADIUS);
+
+    Label score = new Label(""+playerScore);
+
+    Label currentLives = new Label(""+lives);
 
     Random rand = new Random();
 
@@ -94,11 +104,28 @@ public class PongV2 extends Application {
         //GAME SCREEN----------------------------------------------------------------------------------------------------------------------------------------------------------------------
         //create the window widgets of the GAME SCREEN
         Button quit = new Button("QUIT");
-        quit.setLayoutX(WIDTH / 2 - 40);
+        quit.setLayoutX(WIDTH-50);
         quit.setLayoutY(10);
 
+        Text scoreLabel = new Text("Player Score:");
+        scoreLabel.setLayoutX(WIDTH/2-30);
+        scoreLabel.setLayoutY(12);
+
+        //Score label
+        score.setLayoutX(WIDTH/2);
+        score.setLayoutY(20);
+
+        Text livesLabel = new Text("Lives Left:");
+        livesLabel.setLayoutX(WIDTH/2-20);
+        livesLabel.setLayoutY(570);
+
+        //Score label
+        currentLives.setLayoutX(WIDTH/2);
+        currentLives.setLayoutY(580);
+
+
         // defines the pane hierarchy for the WELCOME SCREEN
-        p2.getChildren().addAll(humanPaddle, computerPaddle, ball, quit);
+        p2.getChildren().addAll(humanPaddle, computerPaddle, ball, quit,scoreLabel,score,currentLives, livesLabel);
 
         //EVENT Listeners for GAME SCREEN
         quit.setOnMouseClicked(e -> {
@@ -133,19 +160,33 @@ public class PongV2 extends Application {
         //GAME OVER SCREEN----------------------------------------------------------------------------------------------------------------------------------------------------------------------
         //create the window widgets of the GAME OVER SCREEN
         Button quit2 = new Button("QUIT");
-        quit2.setLayoutX(WIDTH / 2 - 40);
-        quit2.setLayoutY(10);
-        Button restart = new Button("RESTART");
+        quit2.setLayoutX(WIDTH-50);
+        quit2.setLayoutY(10);Button restart = new Button("RESTART");
+
         Text gameOver = new Text("GAME OVER !");
+        gameOver.setX(WIDTH/2 -300);
+        gameOver.setY(HEIGHT/2);
+        gameOver.setFont((Font.font("Verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR,80)));
+
+        Label enterLabel = new Label("Please enter your name to add yourself to the scoreboard!");
+        enterLabel.setLayoutX(WIDTH/2 -200);
+        enterLabel.setLayoutY(HEIGHT/2+50);
+
+        TextField enterName = new TextField();
+        enterName.setLayoutX(WIDTH/2-110);
+        enterName.setLayoutY(HEIGHT/2+70);
+
 
         //Defines the pane hierarchy for the GAME OVER SCREEN
-        p3.getChildren().addAll(quit2, restart, gameOver);
+        p3.getChildren().addAll(quit2, restart, gameOver,enterName,enterLabel);
 
         //Event listeners for GAME OVER SCREEN
         quit2.setOnMouseClicked(e -> {
             primaryStage.setScene(welcomeScreen);
+            resetGame();
         });
         restart.setOnMouseClicked(e -> {
+            resetGame();
             primaryStage.setScene(gameScreen);
             ptBall.play();
 
@@ -167,6 +208,14 @@ public class PongV2 extends Application {
 
         //Sets score back to zero
         playerScore = 0;
+        score.setText(""+playerScore);
+
+        //Resets lives
+        lives = 3;
+        currentLives.setText(""+lives);
+
+        //Reset Rate
+        ptBall.setRate(1.0);
     }
 
     /**
@@ -188,12 +237,35 @@ public class PongV2 extends Application {
             //if hits the battle, reverse:
             if (ball.getTranslateX() <= 15) {
                 if ((humanPaddle.getY() <= ball.getTranslateY() && ball.getTranslateY() <= (humanPaddle.getY() + PLAYER_HEIGHT))) {
-                    ptBall.setRate(ptBall.getRate() * -1.1);
+                    playerScore++;
+                    score.setText(""+playerScore);
+                    ptBall.setRate(ptBall.getRate() * -1);
+                    if (ptBall.getRate()>0){
+                        ptBall.setRate(ptBall.getRate() + 0.5);
+                    }
+                    else{
+                        ptBall.setRate(ptBall.getRate() - 0.5);
+                    }
+
                     ptBall.play();
 
                 } else {
-                    primaryStage.setScene(overScreen);
-                    ptBall.stop();
+                    if(lives>1){
+                        lives--;
+                        currentLives.setText(""+lives);
+                        ptBall.setRate(ptBall.getRate() * -1);
+                        if (ptBall.getRate()>0){
+                            ptBall.setRate(ptBall.getRate() + 0.5);
+                        }
+                        else{
+                            ptBall.setRate(ptBall.getRate() - 0.5);
+                        }
+                        ptBall.play();
+                    }
+                    else {
+                        primaryStage.setScene(overScreen);
+                        ptBall.stop();
+                    }
 
                 }
 
@@ -213,6 +285,7 @@ public class PongV2 extends Application {
 
         });
         ptBall.play();
+        //System.out.println(ptBall.getRate());
 
 
     }
