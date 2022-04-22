@@ -3,8 +3,6 @@ package com.example.pong;
 import javafx.animation.Interpolator;
 import javafx.animation.PathTransition;
 import javafx.application.Application;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -27,7 +25,7 @@ import java.util.Random;
  * CS2040 Final Project
  */
 public class PongV2 extends Application {
-   //Global variable declarations
+    //Global variable declarations
     private static final int WIDTH = 800;
     private static final int HEIGHT = 600;
     private static final int PLAYER_HEIGHT = 100;
@@ -46,7 +44,7 @@ public class PongV2 extends Application {
     Label currentLives = new Label("" + lives);
 
     //Global window widgets of the GAME OVER SCREEN
-    Label finalScore = new Label(""+playerScore);
+    Label finalScore = new Label("" + playerScore);
 
     //Random object global declaration
     Random rand = new Random();
@@ -126,7 +124,7 @@ public class PongV2 extends Application {
 
         //EVENT Listeners for GAME SCREEN
         quit.setOnMouseClicked(e -> {
-            finalScore.setText(""+playerScore);
+            finalScore.setText("" + playerScore);
             primaryStage.setScene(overScreen);
             ptBall.stop();
         });
@@ -141,6 +139,7 @@ public class PongV2 extends Application {
 //                    break;
 //            }
 //        });
+
         gameScreen.setOnMouseMoved(e -> {
             humanPaddle.setY(e.getY());
             //System.out.printf("py: %f, px: %f, by: %f, bx: %f \n", humanPaddle.getY(),humanPaddle.getX(),ball.getTranslateY(),ball.getTranslateX());
@@ -172,14 +171,14 @@ public class PongV2 extends Application {
 
         Label enterLabel = new Label("Please enter your name to add yourself to the scoreboard!");
 
-        Text finalScoreText = new Text("Your score: " );
+        Text finalScoreText = new Text("Your score: ");
 
 
         HBox finalScoresHBox = new HBox();
-        finalScoresHBox.setLayoutX(WIDTH/2-75);
+        finalScoresHBox.setLayoutX(WIDTH / 2 - 75);
         finalScoresHBox.setLayoutY(HEIGHT / 2 - 50);
 
-        finalScoresHBox.getChildren().addAll(finalScoreText,finalScore);
+        finalScoresHBox.getChildren().addAll(finalScoreText, finalScore);
 
         TextField enterName = new TextField();
 
@@ -202,7 +201,7 @@ public class PongV2 extends Application {
         //Defines the pane hierarchy for the GAME OVER SCREEN
         enterNameArea.getChildren().addAll(enterLabel, enterName, enter, tbv);
         tbv.setVisible(false);
-        p3.getChildren().addAll(quit2, restart, gameOver, enterNameArea,finalScoresHBox);
+        p3.getChildren().addAll(quit2, restart, gameOver, enterNameArea, finalScoresHBox);
 
         //Event listeners for GAME OVER SCREEN
         enterName.textProperty().addListener(e -> {
@@ -251,7 +250,7 @@ public class PongV2 extends Application {
         currentLives.setText("" + lives);
 
         //Resets final score
-        finalScore.setText(""+playerScore);
+        finalScore.setText("" + playerScore);
 
         //Reset Rate
         ptBall.setRate(1.0);
@@ -306,7 +305,7 @@ public class PongV2 extends Application {
                         ptBall.play();
                     } else {
                         primaryStage.setScene(overScreen);
-                        finalScore.setText(""+playerScore);
+                        finalScore.setText("" + playerScore);
                         ptBall.stop();
                     }
 
@@ -320,7 +319,7 @@ public class PongV2 extends Application {
 
                     } else {//else, lose a point / Gameover because you missed
                         primaryStage.setScene(overScreen);
-                        finalScore.setText(""+playerScore);
+                        finalScore.setText("" + playerScore);
                         ptBall.stop();
 
                     }
