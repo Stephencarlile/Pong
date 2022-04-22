@@ -27,22 +27,14 @@ import java.util.Random;
  * CS2040 Final Project
  */
 public class PongV2 extends Application {
+   //Global variable declarations
     private static final int WIDTH = 800;
     private static final int HEIGHT = 600;
     private static final int PLAYER_HEIGHT = 100;
     private static final int PLAYER_WIDTH = 15;
     private static final double BALL_RADIUS = 15;
-    private int ballXPos = WIDTH / 2;
-    private int ballYPos = WIDTH / 2;
-    private int ballYSpeed = 1;
-    private int ballXSpeed = 1;
-    private boolean gameStarted = false;
     private int playerScore = 0;
     private int lives = 3;
-    private int playerXPos = 0;
-    private double computerXPos = WIDTH - PLAYER_WIDTH;
-    private double playerYPos = WIDTH / 2;
-    private double computerYPos = WIDTH / 2;
     private static List<Players> scoreBoard = new ArrayList<Players>();//arrayList to store scores for scoreboards
 
     //Global node declarations
@@ -50,12 +42,17 @@ public class PongV2 extends Application {
     Rectangle humanPaddle = new Rectangle(0, 20, PLAYER_WIDTH, PLAYER_HEIGHT);
     Rectangle computerPaddle = new Rectangle(785, (HEIGHT / 2 - 75), PLAYER_WIDTH, PLAYER_HEIGHT);
     Circle ball = new Circle(0, 0, BALL_RADIUS);
-
     Label score = new Label("" + playerScore);
-
     Label currentLives = new Label("" + lives);
 
+    //Global window widgets of the GAME OVER SCREEN
+    Label finalScore = new Label(""+playerScore);
+
+    //Random object global declaration
     Random rand = new Random();
+
+    // New Table View
+    TableView tbv = new TableView();
 
     //Declares the 3 panes, one for each screen
     Pane p1 = new Pane();
@@ -67,9 +64,10 @@ public class PongV2 extends Application {
     Scene gameScreen = new Scene(p2, WIDTH, HEIGHT);
     Scene overScreen = new Scene(p3, WIDTH, HEIGHT);
 
-    //Ball animation
+    //Ball animation declarations
     PathTransition ptBall = new PathTransition();
 
+    //Stage declaration
     Stage primaryStage = new Stage();
 
     @Override
@@ -97,7 +95,6 @@ public class PongV2 extends Application {
         //EVENT Listeners for WELCOME SCREEN
         start.setOnMouseClicked(e -> {
             primaryStage.setScene(gameScreen);
-            gameStarted = true;
             gamePlay();
 
         });
@@ -124,12 +121,12 @@ public class PongV2 extends Application {
         currentLives.setLayoutX(WIDTH / 2);
         currentLives.setLayoutY(580);
 
-
         // defines the pane hierarchy for the WELCOME SCREEN
         p2.getChildren().addAll(humanPaddle, computerPaddle, ball, quit, scoreLabel, score, currentLives, livesLabel);
 
         //EVENT Listeners for GAME SCREEN
         quit.setOnMouseClicked(e -> {
+            finalScore.setText(""+playerScore);
             primaryStage.setScene(overScreen);
             ptBall.stop();
         });
@@ -164,50 +161,70 @@ public class PongV2 extends Application {
         Button quit2 = new Button("QUIT");
         quit2.setLayoutX(WIDTH - 50);
         quit2.setLayoutY(10);
-        Button restart = new Button("RESTART");
+
+        Button restart = new Button("Play Again");
+        restart.setLayoutY(10);
 
         Text gameOver = new Text("GAME OVER !");
         gameOver.setX(WIDTH / 2 - 300);
-        gameOver.setY(HEIGHT / 2);
+        gameOver.setY(HEIGHT / 2 - 100);
         gameOver.setFont((Font.font("Verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 80)));
 
         Label enterLabel = new Label("Please enter your name to add yourself to the scoreboard!");
 
+        Text finalScoreText = new Text("Your score: " );
+
+
+        HBox finalScoresHBox = new HBox();
+        finalScoresHBox.setLayoutX(WIDTH/2-75);
+        finalScoresHBox.setLayoutY(HEIGHT / 2 - 50);
+
+        finalScoresHBox.getChildren().addAll(finalScoreText,finalScore);
+
         TextField enterName = new TextField();
-        // enterName.setDisable(false);
 
         Button enter = new Button("ENTER");
-        //  enter.setDisable(true);
 
         VBox enterNameArea = new VBox();
         enterNameArea.setLayoutX(WIDTH / 2 - 180);
-        enterNameArea.setLayoutY(HEIGHT / 2 + 40);
+        enterNameArea.setLayoutY(HEIGHT / 2);
+
+        // Create two columns
+        TableColumn<String, Players> cl1 = new TableColumn<>("Player Name");
+        cl1.setCellValueFactory(new PropertyValueFactory<>("name"));
+        TableColumn<Integer, Players> cl2 = new TableColumn<>("Player Score");
+        cl2.setCellValueFactory(new PropertyValueFactory<>("score"));
+
+        // Add two columns into TableView
+        tbv.getColumns().add(cl1);
+        tbv.getColumns().add(cl2);
 
         //Defines the pane hierarchy for the GAME OVER SCREEN
-        enterNameArea.getChildren().addAll(enterLabel, enterName, enter);
-        p3.getChildren().addAll(quit2, restart, gameOver, enterNameArea);
+        enterNameArea.getChildren().addAll(enterLabel, enterName, enter, tbv);
+        tbv.setVisible(false);
+        p3.getChildren().addAll(quit2, restart, gameOver, enterNameArea,finalScoresHBox);
 
         //Event listeners for GAME OVER SCREEN
         enterName.textProperty().addListener(e -> {
             //  enter.setDisable(false);
         });
         enter.setOnMouseClicked(e -> {
-            //  enterName.setDisable(true);
-
             addScores(new Players(enterName.getText(), playerScore));
             System.out.println(scoreBoard);
-
-            TableView table = new TableView();
-            table = displayScore();
-            enterNameArea.getChildren().add(table);
+            updateBoard();
+            tbv.setVisible(true);
+            enterName.setText("");
+            enter.setDisable(true);
 
         });
         quit2.setOnMouseClicked(e -> {
-           // enterNameArea.getChildren().remove(table);
-            primaryStage.setScene(welcomeScreen);
+            enter.setDisable(false);
             resetGame();
+            primaryStage.setScene(welcomeScreen);
+
         });
         restart.setOnMouseClicked(e -> {
+            enter.setDisable(false);
             resetGame();
             primaryStage.setScene(gameScreen);
             ptBall.play();
@@ -225,8 +242,6 @@ public class PongV2 extends Application {
      * Resets all variables and positions to default for game start
      */
     public void resetGame() {
-        gameStarted = false;//game not in session
-
         //Sets score back to zero
         playerScore = 0;
         score.setText("" + playerScore);
@@ -235,8 +250,17 @@ public class PongV2 extends Application {
         lives = 3;
         currentLives.setText("" + lives);
 
+        //Resets final score
+        finalScore.setText(""+playerScore);
+
         //Reset Rate
         ptBall.setRate(1.0);
+
+        //Clears scorebaord and hides it
+        tbv.setVisible(false);
+        tbv.getItems().clear();
+
+
     }
 
     /**
@@ -282,6 +306,7 @@ public class PongV2 extends Application {
                         ptBall.play();
                     } else {
                         primaryStage.setScene(overScreen);
+                        finalScore.setText(""+playerScore);
                         ptBall.stop();
                     }
 
@@ -295,6 +320,7 @@ public class PongV2 extends Application {
 
                     } else {//else, lose a point / Gameover because you missed
                         primaryStage.setScene(overScreen);
+                        finalScore.setText(""+playerScore);
                         ptBall.stop();
 
                     }
@@ -307,7 +333,7 @@ public class PongV2 extends Application {
     }
 
     /**
-     * Arranges the best scores of all the players and their corresponding names
+     * Arranges the best scores of all the players and their corresponding names ordered from highest to lowest scores
      */
     public static void addScores(Players p) {
         String name;
@@ -336,26 +362,17 @@ public class PongV2 extends Application {
         }
     }
 
-    public TableView displayScore() {
-        // New Table View
-        TableView tbv = new TableView();
-
-        // Create two columns
-        TableColumn<String, Players> cl1 = new TableColumn<>("Player Name");
-        cl1.setCellValueFactory(new PropertyValueFactory<>("name"));
-        TableColumn<Integer, Players> cl2 = new TableColumn<>("Player Score");
-        cl2.setCellValueFactory(new PropertyValueFactory<>("score"));
-
-        // Add two columns into TableView
-        tbv.getColumns().add(cl1);
-        tbv.getColumns().add(cl2);
+    /**
+     * Updates the scoreboard
+     */
+    public void updateBoard() {
+        //clears the table so that names are not doubled
+        tbv.getItems().clear();
 
         // Load objects into table
-        for (Players p : scoreBoard){
+        for (Players p : scoreBoard) {
             tbv.getItems().add(p);
         }
-
-        return tbv;
     }
 
 }
