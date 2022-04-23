@@ -9,6 +9,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
@@ -34,15 +35,25 @@ public class Pong extends Application {
     private int playerScore = 0;
     private int lives = 3;
     private static List<Players> scoreBoard = new ArrayList<Players>();//arrayList to store scores for scoreboards
+    private boolean highContrast=false;
+    private Color backgroundColor=Color.WHITE;
+    private Color fontColor=Color.BLACK;
+    private Color paddleColor=Color.BLACK;
+    private Color ballColor=Color.BLACK;
 
     //Random object global declaration
     Random rand = new Random();
 
     //Global node declarations
+
+    //global window widgets for the START SCREEN
+    CheckBox checkForContrast = new CheckBox("Check for High Contrast");
+
     //create the window widgets of the GAME SCREEN
     Rectangle humanPaddle = new Rectangle(0, 20, PLAYER_WIDTH, PLAYER_HEIGHT);
     Rectangle computerPaddle = new Rectangle(785, (HEIGHT / 2 - 75), PLAYER_WIDTH, PLAYER_HEIGHT);
     Circle ball = new Circle(0, 0, BALL_RADIUS);
+
     Label score = new Label("" + playerScore);
     Label currentLives = new Label("" + lives);
 
@@ -67,6 +78,7 @@ public class Pong extends Application {
 
     //Stage declaration
     Stage primaryStage = new Stage();
+
     //----------------------------------------------------
     @Override
     /**
@@ -76,19 +88,27 @@ public class Pong extends Application {
         this.primaryStage = primaryStage;
         //WELCOME SCREEN----------------------------------------------------------------------------------------------------------------------------------------------------------------------
         //create the window widgets of the WELCOME SCREEN
+        welcomeScreen.setFill(backgroundColor);
         Text welcome = new Text(WIDTH / 2 - 100, HEIGHT / 3, "Welcome to PONG!");
         welcome.setFont(Font.font("Verdana", 20));
+        welcome.setFill(fontColor);
 
         Button start = new Button("Start Game");
         start.setLayoutX(WIDTH / 2 - 40);
         start.setLayoutY(HEIGHT / 2);
         start.setScaleX(1.5);
         start.setScaleY(1.5);
+        start.setTextFill(fontColor);
 
         Text instructions = new Text(WIDTH / 2 - 40, HEIGHT - 100, "Instructions");
+        instructions.setFill(fontColor);
+
+        //Check for contrast button
+        checkForContrast.setLayoutY(HEIGHT-20);
+        checkForContrast.setTextFill(fontColor);
 
         // define the pane hierarchy for the WELCOME SCREEN
-        p1.getChildren().addAll(welcome, start, instructions);
+        p1.getChildren().addAll(welcome, start, instructions,checkForContrast);
 
         //EVENT Listeners for WELCOME SCREEN
         start.setOnMouseClicked(e -> {
@@ -96,28 +116,53 @@ public class Pong extends Application {
             gamePlay();
 
         });
+        if(highContrast){
+            backgroundColor=Color.BLACK;
+            fontColor=Color.WHITE;
+            paddleColor=Color.WHITE;
+            ballColor=Color.WHITE;
+
+        }
+        checkForContrast.selectedProperty().addListener(e->{
+            highContrast=true;
+            welcomeScreen.setFill(backgroundColor);
+            instructions.setFill(fontColor);
+            start.setTextFill(fontColor);
+            welcome.setFill(fontColor);
+
+
+        });
 
         //GAME SCREEN----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        gameScreen.setFill(backgroundColor);
+        humanPaddle.setFill(paddleColor);
+        computerPaddle.setFill(paddleColor);
+        ball.setFill(ballColor);
         //create the window widgets of the GAME SCREEN
         Button quit = new Button("QUIT");
         quit.setLayoutX(WIDTH - 50);
         quit.setLayoutY(10);
+        quit.setTextFill(fontColor);
 
         Text scoreLabel = new Text("Player Score:");
         scoreLabel.setLayoutX(WIDTH / 2 - 30);
         scoreLabel.setLayoutY(12);
+        scoreLabel.setFill(fontColor);
 
         //Score label
         score.setLayoutX(WIDTH / 2);
         score.setLayoutY(20);
+        scoreLabel.setFill(fontColor);
 
         Text livesLabel = new Text("Lives Left:");
         livesLabel.setLayoutX(WIDTH / 2 - 20);
         livesLabel.setLayoutY(570);
+        livesLabel.setFill(fontColor);
 
         //Score label
         currentLives.setLayoutX(WIDTH / 2);
         currentLives.setLayoutY(580);
+        currentLives.setTextFill(fontColor);
 
         // defines the pane hierarchy for the WELCOME SCREEN
         p2.getChildren().addAll(humanPaddle, computerPaddle, ball, quit, scoreLabel, score, currentLives, livesLabel);
@@ -154,21 +199,27 @@ public class Pong extends Application {
 //        });
 
         //GAME OVER SCREEN----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        overScreen.setFill(backgroundColor);
         //create the window widgets of the GAME OVER SCREEN
         Button quit2 = new Button("QUIT");
         quit2.setLayoutX(WIDTH - 50);
         quit2.setLayoutY(10);
+        quit2.setTextFill(fontColor);
 
         Button restart = new Button("Play Again");
         restart.setLayoutY(10);
+        restart.setTextFill(fontColor);
 
         Text gameOver = new Text("GAME OVER !");
         gameOver.setX(WIDTH / 2 - 300);
         gameOver.setY(HEIGHT / 2 - 100);
         gameOver.setFont((Font.font("Verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 80)));
+        gameOver.setFill(fontColor);
 
         Label enterLabel = new Label("Please enter your name to add yourself to the scoreboard!");
+        enterLabel.setTextFill(fontColor);
         Text finalScoreText = new Text("Your score: ");
+        finalScoreText.setFill(fontColor);
 
         HBox finalScoresHBox = new HBox();
         finalScoresHBox.setLayoutX(WIDTH / 2 - 75);
@@ -178,6 +229,7 @@ public class Pong extends Application {
 
         TextField enterName = new TextField();
         Button enter = new Button("ENTER");
+        enter.setTextFill(fontColor);
 
         VBox enterNameArea = new VBox();
         enterNameArea.setLayoutX(WIDTH / 2 - 180);
@@ -225,6 +277,7 @@ public class Pong extends Application {
         });
 
         // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
         //shows the window of the application, beginning with the WELCOME SCREEN
         primaryStage.setTitle("P O N G");
         primaryStage.setScene(welcomeScreen);
@@ -253,6 +306,9 @@ public class Pong extends Application {
         //Clears scorebaord and hides it
         tbv.setVisible(false);
         tbv.getItems().clear();
+
+        //Unselects the check box ?
+        checkForContrast.setSelected(false);
 
     }
 
