@@ -42,6 +42,7 @@ public class Pong extends Application {
     private Color paddleColor = Color.BLACK;
     private Color ballColor = Color.BLACK;
     private double currentSpeed = 1;
+    private boolean gameStarted = false;
 
     //Random object global declaration
     Random rand = new Random();
@@ -177,10 +178,9 @@ public class Pong extends Application {
 
         ball.translateYProperty().addListener(ov ->
         {
-            computerPaddle.setY((ball.getTranslateY() - PLAYER_HEIGHT / 2));
-
-            //If the ball hits the top or bottom of the screen
-            if (ball.getTranslateY() == HEIGHT) {
+            computerPaddle.setY((ball.getTranslateY() - PLAYER_HEIGHT / 2));//computer paddle follows the ball y value
+            // System.out.println((ball.getTranslateY() <=0));
+            if (ball.getTranslateY() >= HEIGHT) {
                 //currentSpeed = ptBall.getRate();
                 System.out.println("Touched the bottom");
                 ptBall.stop();
@@ -188,7 +188,7 @@ public class Pong extends Application {
                 ptBall.play();
 
             }
-            if (ball.getTranslateY() <=0) {
+            if (ball.getTranslateY() <= 0) {
                 //currentSpeed = ptBall.getRate();
                 System.out.println("Touched the top");
                 ptBall.stop();
@@ -196,7 +196,9 @@ public class Pong extends Application {
                 ptBall.play();
 
             }
+
         });
+
         ball.translateXProperty().addListener(ov ->
         {
             if (ball.getTranslateX() <= 15) {
@@ -227,8 +229,7 @@ public class Pong extends Application {
 
                 }
 
-            }
-            if (ball.getTranslateX() >= 785) {
+            } else if (ball.getTranslateX() >= 785) {
                 //if near the computer paddle
                 if ((computerPaddle.getY() <= ball.getTranslateY() && (ball.getTranslateY() <= (computerPaddle.getY() + PLAYER_HEIGHT)))) {
                     System.out.println("Is this working?");
@@ -379,15 +380,19 @@ public class Pong extends Application {
         //Unselects the check box ?
         checkForContrast.setSelected(false);
 
+        gameStarted = false;
+
     }
 
     /**
      * Starts the game and defines the game logic.
      */
     private Line ballPath = new Line(15, 100, 700, HEIGHT);
-    private Line ballStartPath = new Line(15, 100, 700, HEIGHT);
+    //private Line ballStartPath = new Line(15, 100, 700, HEIGHT);
+    private Line ballStartPath = new Line(15, rand.nextInt(HEIGHT), 700, HEIGHT);
 
     public void gamePlay() {
+        gameStarted = true;
         //BALL ANIMATION
         ptBall.setDuration(javafx.util.Duration.seconds(3));
         // Line ballPath = new Line(700, HEIGHT, 15, 100);
@@ -396,7 +401,7 @@ public class Pong extends Application {
         ptBall.setNode(ball);
         ptBall.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
         ptBall.setInterpolator(Interpolator.LINEAR);
-        ptBall.setCycleCount(1);
+        ptBall.setCycleCount(Animation.INDEFINITE);
         ptBall.setAutoReverse(false);
 
 
@@ -509,6 +514,7 @@ public class Pong extends Application {
         System.out.println("the y intercept: " + slope * (-15) + ballPath.getStartY());
 
         //b = m(-15) + yA---> y=mx+b ==> b=y-mx
+        System.out.println("Start Y: " + ballPath.getStartY());
         yInt = slope * (-15) + ballPath.getStartY();
 
         if (ballPath.getStartX() < WIDTH / 2) {
@@ -522,6 +528,14 @@ public class Pong extends Application {
         return path;
 
     }
+//    public void checkBounds(){
+//        //If the ball hits the top or bottom of the screen
+//        System.out.println("Check bounds called");
+//        System.out.printf("by: %f, bx: %f \n",ball.getTranslateY(),ball.getTranslateX());
+//
+//        System.out.println((ball.getTranslateY() == HEIGHT));
+//
+//    }
 
 
 }
