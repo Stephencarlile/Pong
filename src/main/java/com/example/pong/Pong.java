@@ -3,7 +3,6 @@ package com.example.pong;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.PathTransition;
-import javafx.animation.Transition;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -42,7 +41,7 @@ public class Pong extends Application {
     private Color fontColor = Color.BLACK;
     private Color paddleColor = Color.BLACK;
     private Color ballColor = Color.BLACK;
-//    private double currentSpeed = 1;
+    //    private double currentSpeed = 1;
     private boolean gameStarted = false;
 
     //Random object global declaration
@@ -187,24 +186,25 @@ public class Pong extends Application {
             //computer paddle follows the ball y value
             computerPaddle.setY((ball.getTranslateY() - PLAYER_HEIGHT / 2));
 
-        });
 
+
+        });
+        ball.translateXProperty().addListener(ov ->
+        {
+            System.out.printf("by: %f, bx: %f \n", ball.getTranslateY(),ball.getTranslateX());
+            animate();
+
+        });
         ball.translateYProperty().addListener(e -> {
 
-            if ((ball.getTranslateY() >= HEIGHT || ball.getTranslateY() <= 0) && (ball.getTranslateX()>=15 && ball.getTranslateX()<=785)) {
+            if ((ball.getTranslateY() >= HEIGHT || ball.getTranslateY() <= 0) && (ball.getTranslateX() >= 15 && ball.getTranslateX() <= 785)) {
+                //Ball Hit the top or bottom and is not near one of the paddles
                 System.out.println("Hit border");
                 ptBall.stop();
-                ptBall.setPath(bounce());
-                ptBall.play();
-            } else {
+                ptBall.setPath(hitsTopOrBottomAndBounce());
                 ptBall.play();
             }
 
-        });
-
-        ball.translateXProperty().addListener(ov ->
-        {
-            animate();
         });
 
 
@@ -309,7 +309,6 @@ public class Pong extends Application {
         });
 
         // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
         //shows the window of the application, beginning with the WELCOME SCREEN
         primaryStage.setTitle("P O N G");
         primaryStage.setScene(welcomeScreen);
@@ -416,67 +415,98 @@ public class Pong extends Application {
      * Calculates a new line to be assigned as the animation path for the ball
      * returns a line with properly calculated star and end points of the path
      */
-    public Line calculatePath() {
+    public Line hitSideAndBounce() {
         Line path;
-        double yInt = 0;
-        double slope = ((ball.getTranslateY() - ballPath.getStartY()) / (ball.getTranslateX() - ballPath.getStartX()));
 
-        //System.out.println("the y intercept: " + slope * (-15) + ballPath.getStartY());
+        double startX = ballPath.getStartX();
+        double startY = ballPath.getStartY();
+        double endX = ballPath.getEndX();
+        double endY = ballPath.getEndY();
 
-        //b = m(-15) + yA---> y=mx+b ==> b=y-mx
-        //System.out.println("Start Y: " + ballPath.getStartY());
-        yInt = slope * (-15) + ballPath.getStartY();
+        // path = new Line(ball.getTranslateX(), ball.getTranslateY(), ((-1*yInt+HEIGHT)/slope), ballPath.getStartY());
 
-        if (ballPath.getStartX() < WIDTH / 2) {
-            //if ball is coming from the human player (left)
-            path = new Line(ball.getTranslateX(), ball.getTranslateY(), (WIDTH - 15), yInt);
+        if (startY <= HEIGHT / 2) {
+            //Coming from the top half of the screen
+            System.out.println("Coming from the top");
+            path = new Line(ball.getTranslateX(), ball.getTranslateY(), startX, ((endY - startY) + endY));
+
+
         } else {
-            //if ball is coming from the computer (Right)
-            path = new Line(ball.getTranslateX(), ball.getTranslateY(), 15, yInt);
-
+            //Coming from the bottom half of the screen
+            System.out.println("Coming from the bottom");
+            path = new Line(ball.getTranslateX(), ball.getTranslateY(), startX, (endY - (startY - endY)));
         }
+        System.out.println("Start y: " + startY);
+        //System.out.println(path);
         return path;
+
 
     }
 
     /**
      * @returns a line for the animation path if the ball hits the top or bottom of the screen (tied to event listener)
      */
-    public Line bounce() {
+    public Line hitsTopOrBottomAndBounce() {
         Line path;
-        double yInt = 0;
-        double slope = ((ball.getTranslateY() - ballPath.getStartY()) / (ball.getTranslateX() - ballPath.getStartX()));
 
-        //b = m(-15) + yA---> y=mx+b ==> b=y-mx
-       // System.out.println("Start Y: " + ballPath.getStartY());
-        //System.out.println("the y intercept: " + slope * (-15) + ballPath.getStartY());
-        yInt = slope * (-15) + ballPath.getStartY();
+        double startX = ballPath.getStartX();
+        double startY = ballPath.getStartY();
+        double endX = ball.getTranslateX();
+        double endY = ball.getTranslateY();
 
-        if (ballPath.getStartX() < WIDTH / 2) {
-            //if ball is coming from the human player (left)
-            path = new Line(ball.getTranslateX(), ball.getTranslateY(), (WIDTH - 15), 300);
+        System.out.println("Start x:" + startX);
+        if (startX > PLAYER_WIDTH + 5) {
+            //Coming from the computer paddle and touching border
+            System.out.println("Hitting the side and bouncing toward the human");
+            path = new Line(ball.getTranslateX(), ball.getTranslateY(), (endX + (endX - startX)), startY);
         } else {
-            //if ball is coming from the computer (Right)
-            path = new Line(ball.getTranslateX(), ball.getTranslateY(), 15, 300);
+            //Coming from human paddle and touching boarder
+            System.out.println("Hitting the side and bouncing toward the computer");
+            path = new Line(ball.getTranslateX(), ball.getTranslateY(), (endX - (startX - endX)), startY);
 
         }
+        // System.out.println(path);
         return path;
     }
+
+
+    /**
+     * Returns an ArrayList holding the slope and y-intercept of a line given two points.
+     */
+    public ArrayList<Double> calcSlopeAndInt(double x1, double y1, double x2, double y2) {
+        double m = 0;
+        double b = 0;
+
+        m = (y2 - y1) / (x2 - x1);
+        b = y1 - m * x1;
+
+        ArrayList<Double> mAndB = new ArrayList<Double>();
+
+        mAndB.add(m);
+        mAndB.add(b);
+
+        return mAndB;
+
+        //b = m(-15) + yA---> y=mx+b ==> b=y-mx
+        // System.out.println("Start Y: " + ballPath.getStartY());
+        //System.out.println("the y intercept: " + slope * (-15) + ballPath.getStartY());
+    }
+
 
     /**
      * Tied to the event listener for the ball animation, this method controls when and how the ball will bounce back and forth when it hits each paddle, or not
      * The majority of the game/animation logic is here
      */
     public void animate() {
-        if (ball.getTranslateX() <= 15) {
+        if (ball.getTranslateX() <= PLAYER_WIDTH) {
             //if near the human paddle
             if ((humanPaddle.getY() <= ball.getTranslateY() && ball.getTranslateY() <= (humanPaddle.getY() + PLAYER_HEIGHT))) {
-                //if it touches the paddle
+                //if it touches the human paddle
                 System.out.println("Hit the human paddle");
                 playerScore++;
                 score.setText("" + playerScore);
                 ptBall.stop();
-                ptBall.setPath(calculatePath());
+                ptBall.setPath(hitSideAndBounce());
                 ptBall.play();
 
             } else {
@@ -488,7 +518,7 @@ public class Pong extends Application {
                     lives--;
                     currentLives.setText("" + lives);
                     ptBall.stop();
-                    ptBall.setPath(calculatePath());
+                    ptBall.setPath(hitSideAndBounce());
                     ptBall.play();
                 } else {
                     //missed paddle and no more lives--> end game
@@ -504,7 +534,7 @@ public class Pong extends Application {
             //if near the computer paddle
             System.out.println("Hit the computer paddle");
             ptBall.stop();
-            ptBall.setPath(calculatePath());
+            ptBall.setPath(hitSideAndBounce());
             ptBall.play();
 
         }
