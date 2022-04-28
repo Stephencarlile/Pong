@@ -499,13 +499,15 @@ public class Pong extends Application {
      */
     public void animate() {
         if (ball.getTranslateX() <= PLAYER_WIDTH) {
+            ptBall.stop();
             //if near the human paddle
-            if ((humanPaddle.getY() <= ball.getTranslateY() && ball.getTranslateY() <= (humanPaddle.getY() + PLAYER_HEIGHT))) {
+
+            if (humanPaddle.getY() <= ball.getTranslateY() && ball.getTranslateY() <= (humanPaddle.getY() + PLAYER_HEIGHT)){
                 //if it touches the human paddle
                 System.out.println("Hit the human paddle");
                 playerScore++;
                 score.setText("" + playerScore);
-                ptBall.stop();
+                //ptBall.stop();
                 ptBall.setPath(hitSideAndBounce());
                 ptBall.play();
 
@@ -517,7 +519,7 @@ public class Pong extends Application {
                     System.out.println("Lives left");
                     lives--;
                     currentLives.setText("" + lives);
-                    ptBall.stop();
+                   // ptBall.stop();
                     ptBall.setPath(hitSideAndBounce());
                     ptBall.play();
                 } else {
@@ -530,10 +532,11 @@ public class Pong extends Application {
 
             }
 
-        } else if (ball.getTranslateX() >= 785 && ((computerPaddle.getY() <= ball.getTranslateY() && (ball.getTranslateY() <= (computerPaddle.getY() + PLAYER_HEIGHT))))) {
+        } else if (ball.getTranslateX() >= 785 && (computerPaddle.getY() <= ball.getTranslateY() && (ball.getTranslateY() <= (computerPaddle.getY() + PLAYER_HEIGHT)))) {
             //if near the computer paddle
-            System.out.println("Hit the computer paddle");
             ptBall.stop();
+            System.out.println("Hit the computer paddle");
+            //ptBall.stop();
             ptBall.setPath(hitSideAndBounce());
             ptBall.play();
 
