@@ -4,18 +4,16 @@ import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.PathTransition;
 import javafx.application.Application;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
+import javafx.scene.text.*;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
@@ -38,10 +36,10 @@ public class Pong extends Application {
     private int lives = 3;
     private static List<Players> scoreBoard = new ArrayList<Players>();//arrayList to store scores for scoreboards
     private boolean highContrast = false;
-    private Color backgroundColor = Color.WHITE;
+    private Color backgroundColor = Color.BLACK;
     private Color fontColor = Color.BLACK;
     private Color paddleColor = Color.BLACK;
-    private Color ballColor = Color.BLACK;
+    private Color ballColor = Color.LIME;
     //    private double currentSpeed = 1;
     private boolean gameStarted = false;
 
@@ -62,6 +60,8 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
     //Global node declarations
     //global window widgets for the START SCREEN
     CheckBox checkForContrast = new CheckBox("Check for High Contrast");
+
+
 
     //create the window widgets of the GAME SCREEN
     Rectangle humanPaddle = new Rectangle(0, 20, PLAYER_WIDTH, PLAYER_HEIGHT);
@@ -89,6 +89,8 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
     Scene welcomeScreen = new Scene(p1, WIDTH, HEIGHT);
     Scene gameScreen = new Scene(p2, WIDTH, HEIGHT);
     Scene overScreen = new Scene(p3, WIDTH, HEIGHT);
+    
+    
 
     //Stage declaration
     Stage primaryStage = new Stage();
@@ -102,24 +104,44 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
         this.primaryStage = primaryStage;
         //WELCOME SCREEN----------------------------------------------------------------------------------------------------------------------------------------------------------------------
         //create the window widgets of the WELCOME SCREEN
+        p1.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+
         welcomeScreen.setFill(backgroundColor);
-        Text welcome = new Text(WIDTH / 2 - 100, HEIGHT / 3, "Welcome to PONG!");
-        welcome.setFont(Font.font("Verdana", 20));
+        Text welcome = new Text(160, HEIGHT / 3, "Welcome to PONG!");
+        welcome.setFont(Font.font("Silom", FontWeight.EXTRA_BOLD, 50));
         welcome.setFill(fontColor);
+        welcome.setFill(Color.CYAN);
+
+
+
 
         Button start = new Button("Start Game");
-        start.setLayoutX(WIDTH / 2 - 40);
+        start.setLayoutX(340);
         start.setLayoutY(HEIGHT / 2);
         start.setScaleX(1.5);
         start.setScaleY(1.5);
         start.setTextFill(fontColor);
+        start.setFont(Font.font("Silom"));
+        start.setTextFill(Color.WHITE);
+        start.setStyle("-fx-background-color: #ff0000; ");
 
-        Text instructions = new Text(WIDTH / 2 - 40, HEIGHT - 100, "Instructions");
-        instructions.setFill(fontColor);
+        Text instructions = new Text(30, HEIGHT - 150, "Instructions: \nThe goal of the game is to hit the " +
+                "ball as many times as possible with your paddle. \nEach time you hit the ball, you receive 1 point." +
+                "You have 3 lives, each time you miss the ball, you lose a life. \nAfter 3 lives are lost, the game is over." +
+                "\nAt the end of the game, enter your name to record your score for the player scoreboard." );
+
+        instructions.setFill(Color.LIME);
+        instructions.setTextAlignment(TextAlignment.CENTER);
+        instructions.setFont(Font.font("Silom", 13));
+
+
 
         //Check for contrast button
         checkForContrast.setLayoutY(HEIGHT - 20);
-        checkForContrast.setTextFill(fontColor);
+        checkForContrast.setTextFill(Color.FUCHSIA);
+        checkForContrast.setFont(Font.font("Silom"));
+
+
 
         // define the pane hierarchy for the WELCOME SCREEN
         p1.getChildren().addAll(welcome, start, instructions, checkForContrast);
@@ -130,53 +152,89 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
             startGame();
 
         });
-        if (highContrast) {
-            backgroundColor = Color.BLACK;
-            fontColor = Color.WHITE;
-            paddleColor = Color.WHITE;
-            ballColor = Color.WHITE;
 
-        }
-        checkForContrast.selectedProperty().addListener(e -> {
-            highContrast = true;
-            welcomeScreen.setFill(backgroundColor);
-            instructions.setFill(fontColor);
-            start.setTextFill(fontColor);
-            welcome.setFill(fontColor);
+        checkForContrast.setOnAction((event) -> {
+            highContrast = checkForContrast.isSelected();
+            System.out.println(highContrast);
+            if (highContrast==true) {
+                welcome.setFill(Color.BLACK);
+                welcomeScreen.setFill(backgroundColor=Color.BLACK);
+                overScreen.setFill(backgroundColor=Color.BLACK);
+                instructions.setFill(Color.BLACK);
+                start.setTextFill(Color.BLACK);
+                gameScreen.setFill(Color.BLACK);
+                paddleColor = Color.WHITE;
+                ballColor = Color.WHITE;
+
+            }
+            if(checkForContrast.isIndeterminate()){
+                welcomeScreen.setFill(Color.RED);
+
+            }
+            else {
+                fontColor=Color.RED;
+            }
 
 
         });
 
+//        checkForContrast.selectedProperty().addListener(e -> {
+//            highContrast = true;
+//            welcomeScreen.setFill(backgroundColor);
+//            instructions.setFill(fontColor);
+//            start.setTextFill(fontColor);
+//            welcome.setFill(fontColor);
+//
+//
+//        });
+//
+//        if (checkForContrast.isSelected()) {
+//            backgroundColor = Color.BLACK;
+//            fontColor = Color.WHITE;
+//            paddleColor = Color.WHITE;
+//            ballColor = Color.WHITE;
+//
+//        }
+
         //GAME SCREEN----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        p2.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
         gameScreen.setFill(backgroundColor);
-        humanPaddle.setFill(paddleColor);
-        computerPaddle.setFill(paddleColor);
+        humanPaddle.setFill(Color.BLUE);
+        computerPaddle.setFill(Color.RED);
         ball.setFill(ballColor);
         //create the window widgets of the GAME SCREEN
         Button quit = new Button("QUIT");
-        quit.setLayoutX(WIDTH - 50);
+        quit.setLayoutX(WIDTH - 60);
         quit.setLayoutY(10);
         quit.setTextFill(fontColor);
+        quit.setFont(Font.font("Silom", 16));
+        quit.setStyle("-fx-background-color: #FF00FF; ");
 
         Text scoreLabel = new Text("Player Score:");
-        scoreLabel.setLayoutX(WIDTH / 2 - 30);
-        scoreLabel.setLayoutY(12);
-        scoreLabel.setFill(fontColor);
+        scoreLabel.setLayoutX(WIDTH / 2 - 50);
+        scoreLabel.setLayoutY(16);
+        scoreLabel.setFont(Font.font("Silom", 16));
 
         //Score label
         score.setLayoutX(WIDTH / 2);
         score.setLayoutY(20);
-        scoreLabel.setFill(fontColor);
+        scoreLabel.setFill(Color.CYAN);
+        score.setFont(Font.font("Silom", 16));
+        score.setTextFill(Color.CYAN);
+
+
 
         Text livesLabel = new Text("Lives Left:");
-        livesLabel.setLayoutX(WIDTH / 2 - 20);
+        livesLabel.setLayoutX(WIDTH / 2 - 45);
         livesLabel.setLayoutY(570);
-        livesLabel.setFill(fontColor);
+        livesLabel.setFill(Color.CYAN);
+        livesLabel.setFont(Font.font("Silom", 16));
 
         //Lives label
         currentLives.setLayoutX(WIDTH / 2);
         currentLives.setLayoutY(580);
-        currentLives.setTextFill(fontColor);
+        currentLives.setTextFill(Color.CYAN);
+        currentLives.setFont(Font.font("Silom", 14));
 
         // defines the pane hierarchy for the WELCOME SCREEN
         p2.getChildren().addAll(humanPaddle, computerPaddle, ball, quit, scoreLabel, score, currentLives, livesLabel);
@@ -228,30 +286,54 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
 //        });
 
         //GAME OVER SCREEN----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        p3.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
         overScreen.setFill(backgroundColor);
         //create the window widgets of the GAME OVER SCREEN
         Button quit2 = new Button("QUIT");
         quit2.setLayoutX(WIDTH - 50);
         quit2.setLayoutY(10);
         quit2.setTextFill(fontColor);
+        quit2.setFont(Font.font("Silom"));
+        quit2.setStyle("-fx-background-color: #FF00FF; ");
 
         Button restart = new Button("Play Again");
         restart.setLayoutY(10);
         restart.setTextFill(fontColor);
+        restart.setFont(Font.font("Silom"));
+        restart.setStyle("-fx-background-color: #FF00FF; ");
 
-        Text gameOver = new Text("GAME OVER !");
-        gameOver.setX(WIDTH / 2 - 300);
-        gameOver.setY(HEIGHT / 2 - 100);
-        gameOver.setFont((Font.font("Verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 80)));
-        gameOver.setFill(fontColor);
+//        Text gameOver = new Text("GAME OVER !");
+//        gameOver.setX(WIDTH / 2 - 300);
+//        gameOver.setY(HEIGHT / 2 - 100);
+//        gameOver.setFont((Font.font("Silom", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 80)));
+//        gameOver.setFill(fontColor);
+
+        //Creates Game Over Image
+        Image gameOverImage = new Image("file:gameoverimage.jpg");
+        ImageView viewGameOverImage = new ImageView(gameOverImage);
+        viewGameOverImage.setY(25);
+        viewGameOverImage.setX(200);
+        viewGameOverImage.setFitWidth(400);
+        viewGameOverImage.setPreserveRatio(true);
+        viewGameOverImage.setSmooth(true);
+        viewGameOverImage.setCache(true);
 
         Label enterLabel = new Label("Please enter your name to add yourself to the scoreboard!");
-        enterLabel.setTextFill(fontColor);
+        enterLabel.setTextFill(Color.LIMEGREEN);
+        enterLabel.setFont(Font.font("Silom",16));
+        enterLabel.setTranslateX(-60);
         Text finalScoreText = new Text("Your score: ");
-        finalScoreText.setFill(fontColor);
+        finalScoreText.setFill(Color.LIMEGREEN);
+        finalScoreText.setFont(Font.font("Silom", 20));
+        finalScore.setTextFill(Color.LIMEGREEN);
+        finalScore.setFont(Font.font("Silom",20));
+        finalScoreText.setTranslateX(-50);
+        finalScore.setTranslateX(-30);
+        finalScore.setTranslateY(-2);
+
 
         HBox finalScoresHBox = new HBox();
-        finalScoresHBox.setLayoutX(WIDTH / 2 - 75);
+        finalScoresHBox.setLayoutX(WIDTH / 2 - 50);
         finalScoresHBox.setLayoutY(HEIGHT / 2 - 50);
 
         finalScoresHBox.getChildren().
@@ -259,8 +341,13 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
                 addAll(finalScoreText, finalScore);
 
         TextField enterName = new TextField();
+        enterName.setTranslateX(-60);
         Button enter = new Button("ENTER");
         enter.setTextFill(fontColor);
+        enter.setStyle("-fx-background-color: #FF00FF; ");
+        enter.setFont(Font.font("Silom"));
+        enter.setTranslateX(150);
+        enter.setTranslateY(10);
 
         VBox enterNameArea = new VBox();
         enterNameArea.setLayoutX(WIDTH / 2 - 180);
@@ -280,6 +367,10 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
 
                 add(cl2);
 
+        tbv.setTranslateX(-60);
+        tbv.setTranslateY(20);
+
+
         //Defines the pane hierarchy for the GAME OVER SCREEN
         enterNameArea.getChildren().
 
@@ -287,7 +378,7 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
         tbv.setVisible(false);
         p3.getChildren().
 
-                addAll(quit2, restart, gameOver, enterNameArea, finalScoresHBox);
+                addAll(quit2, restart, enterNameArea, finalScoresHBox, viewGameOverImage);
 
         //Event listeners for GAME OVER SCREEN
         enterName.textProperty().
@@ -325,6 +416,8 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
             ptBall.play();
         });
 
+
+
         // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         //shows the window of the application, beginning with the WELCOME SCREEN
         primaryStage.setTitle("P O N G");
@@ -340,6 +433,7 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
         //Sets score back to zero
         playerScore = 0;
         score.setText("" + playerScore);
+
 
         //Resets lives to 3
         lives = 3;
@@ -564,6 +658,8 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
             ptBall.play();
         }
     }
+
+
 
     /**
      * Keeps the ball animating on the screen and checks if it hits the human paddle and updates scores/lives accordingly

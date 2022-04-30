@@ -1,11 +1,9 @@
 package com.example.pong;
 
+import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.PathTransition;
 import javafx.application.Application;
-import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -28,7 +26,7 @@ import java.util.Random;
  * Class defines Nicolas and Stephen's version of the classic PONG GAME
  * CS2040 Final Project
  */
-public class PongColorTest extends Application {
+public class COPY extends Application {
     //Global variable declarations
     private static final int WIDTH = 800;
     private static final int HEIGHT = 600;
@@ -43,16 +41,20 @@ public class PongColorTest extends Application {
     private Color fontColor = Color.BLACK;
     private Color paddleColor = Color.BLACK;
     private Color ballColor = Color.BLACK;
+    //    private double currentSpeed = 1;
+    private boolean gameStarted = false;
 
     //Random object global declaration
     Random rand = new Random();
+    //Lines for path animation
+    private Line ballPath = new Line(15, 100, 700, HEIGHT);
+    //private Line ballStartPath = new Line(15, 100, 700, HEIGHT);
+    private Line ballStartPath = new Line(15, rand.nextInt(HEIGHT), 700, HEIGHT);
+
 
     //Global node declarations
-
     //global window widgets for the START SCREEN
-    CheckBox checkForContrast = new CheckBox("Change to High Contrast");
-
-
+    CheckBox checkForContrast = new CheckBox("Check for High Contrast");
 
     //create the window widgets of the GAME SCREEN
     Rectangle humanPaddle = new Rectangle(0, 20, PLAYER_WIDTH, PLAYER_HEIGHT);
@@ -108,17 +110,9 @@ public class PongColorTest extends Application {
         Text instructions = new Text(WIDTH / 2 - 40, HEIGHT - 100, "Instructions");
         instructions.setFill(fontColor);
 
-
-
-//        // create checkbox event handler
-//        if (checkForContrast.selectedProperty().addListener():)
-//            highContrast = true;
-//        else highContrast = false;
-
-
-//        //Check for contrast button
-//        checkForContrast.setLayoutY(HEIGHT-20);
-//        checkForContrast.setTextFill(fontColor);
+        //Check for contrast button
+        checkForContrast.setLayoutY(HEIGHT - 20);
+        checkForContrast.setTextFill(fontColor);
 
         // define the pane hierarchy for the WELCOME SCREEN
         p1.getChildren().addAll(welcome, start, instructions, checkForContrast);
@@ -126,57 +120,25 @@ public class PongColorTest extends Application {
         //EVENT Listeners for WELCOME SCREEN
         start.setOnMouseClicked(e -> {
             primaryStage.setScene(gameScreen);
-            gamePlay();
+            startGame();
 
         });
+        if (highContrast) {
+            backgroundColor = Color.BLACK;
+            fontColor = Color.WHITE;
+            paddleColor = Color.WHITE;
+            ballColor = Color.WHITE;
 
-        checkForContrast.selectedProperty().addListener(e->{
-            if (checkForContrast.isSelected()) {
-                highContrast = true;
-                fontColor = Color.RED;
-                System.out.println(highContrast);
-            }
-            System.out.println(highContrast);
-            System.out.println(fontColor);
+        }
+        checkForContrast.selectedProperty().addListener(e -> {
+            highContrast = true;
+            welcomeScreen.setFill(backgroundColor);
+            instructions.setFill(fontColor);
+            start.setTextFill(fontColor);
+            welcome.setFill(fontColor);
+
+
         });
-
-        System.out.println(highContrast);
-
-
-//        EventHandler<ActionEvent> handler = e -> {
-//            if (checkForContrast.isSelected()) {
-//                highContrast = true;
-//                fontColor = Color.RED;
-//            }
-//        };
-//
-//        checkForContrast.setOnAction(handler);
-
-//
-//    checkForContrast.selectedProperty().addListener(
-//            (ObservableValue<? extends Boolean>ov, Boolean old_val, Boolean new_val) -> {
-//                highContrast = true;
-//            }
-//    );
-
-
-//        if(highContrast){
-//            backgroundColor=Color.BLACK;
-//            fontColor=Color.WHITE;
-//            paddleColor=Color.WHITE;
-//            ballColor=Color.WHITE;
-//
-//        }
-//        checkForContrast.selectedProperty().addListener(e->{
-//            highContrast=true;
-//            welcomeScreen.setFill(backgroundColor);
-//            instructions.setFill(fontColor);
-//            start.setTextFill(fontColor);
-//            welcome.setFill(fontColor);
-
-
-
-        System.out.println(highContrast);
 
         //GAME SCREEN----------------------------------------------------------------------------------------------------------------------------------------------------------------------
         gameScreen.setFill(backgroundColor);
@@ -204,7 +166,7 @@ public class PongColorTest extends Application {
         livesLabel.setLayoutY(570);
         livesLabel.setFill(fontColor);
 
-        //Score label
+        //Lives label
         currentLives.setLayoutX(WIDTH / 2);
         currentLives.setLayoutY(580);
         currentLives.setTextFill(fontColor);
@@ -219,26 +181,51 @@ public class PongColorTest extends Application {
             ptBall.stop();
         });
 
+        ball.translateYProperty().addListener(ov ->
+        {
+            //computer paddle follows the ball y value
+            computerPaddle.setY((ball.getTranslateY() - PLAYER_HEIGHT / 2));
+
+
+
+        });
+        ball.translateXProperty().addListener(ov ->
+        {
+            System.out.printf("by: %f, bx: %f \n", ball.getTranslateY(),ball.getTranslateX());
+            animate();
+
+        });
+        ball.translateYProperty().addListener(e -> {
+
+            if ((ball.getTranslateY() >= HEIGHT || ball.getTranslateY() <= 0) && (ball.getTranslateX() >= 15 && ball.getTranslateX() <= 785)) {
+                //Ball Hit the top or bottom and is not near one of the paddles
+                System.out.println("Hit border");
+                ptBall.stop();
+                ptBall.setPath(hitsTopOrBottomAndBounce());
+                ptBall.play();
+            }
+
+        });
+
+
+        ptBall.pathProperty().addListener(e -> {
+            ballPath = (Line) ptBall.getPath();
+            System.out.println(ballPath);
+        });
+
         gameScreen.setOnMouseMoved(e -> {
             humanPaddle.setY(e.getY());
             //debugging purposes
             //System.out.printf("py: %f, px: %f, by: %f, bx: %f \n", humanPaddle.getY(),humanPaddle.getX(),ball.getTranslateY(),ball.getTranslateX());
         });
 
-        ball.translateYProperty().addListener(ov ->
-        {
-            computerPaddle.setY((ball.getTranslateY() - PLAYER_HEIGHT / 2));
-            if (ball.getTranslateY() >= HEIGHT || ball.getTranslateY() <= 0) {
-                ptBall.setRate(ptBall.getRate() * -1);
-            }
-        });
-        //        gameScreen.setOnKeyPressed(e -> {
+//        gameScreen.setOnKeyPressed(e -> {
 //            switch (e.getCode()) {
 //                case DOWN:
-//                    humanPaddle.setY(humanPaddle.getY() + 10);
+//                    humanPaddle.setY(humanPaddle.getY() - 10);
 //                    break;
 //                case UP:
-//                    humanPaddle.setY(humanPaddle.getY() - 10);
+//                    humanPaddle.setY(humanPaddle.getY() + 10);
 //                    break;
 //            }
 //        });
@@ -322,7 +309,6 @@ public class PongColorTest extends Application {
         });
 
         // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
         //shows the window of the application, beginning with the WELCOME SCREEN
         primaryStage.setTitle("P O N G");
         primaryStage.setScene(welcomeScreen);
@@ -347,6 +333,7 @@ public class PongColorTest extends Application {
 
         //Reset Animation Rate to default
         ptBall.setRate(1.0);
+        ptBall.setPath(ballStartPath);
 
         //Clears scorebaord and hides it
         tbv.setVisible(false);
@@ -355,74 +342,29 @@ public class PongColorTest extends Application {
         //Unselects the check box ?
         checkForContrast.setSelected(false);
 
+        //Reset animation path
+        ballStartPath = new Line(15, rand.nextInt(HEIGHT), 700, HEIGHT);
+        ptBall.stop();
+        ptBall.setPath(ballStartPath);
+
     }
 
     /**
-     * Starts the game and defines the game logic.
+     * Starts the game by initializing the game logic and begins animation
      */
-    public void gamePlay() {
+    public void startGame() {
         //BALL ANIMATION
         ptBall.setDuration(javafx.util.Duration.seconds(3));
-        Line ballPath = new Line(700, HEIGHT, 15, 100);
-
-        ptBall.setPath(ballPath);//start going left
+        // Line ballPath = new Line(700, HEIGHT, 15, 100);
+        ptBall.setPath(ballStartPath);//start going left
         ptBall.setNode(ball);
         ptBall.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
         ptBall.setInterpolator(Interpolator.LINEAR);
-        ptBall.setCycleCount(1);
+        ptBall.setCycleCount(Animation.INDEFINITE);
         ptBall.setAutoReverse(false);
 
-        ptBall.setOnFinished(e -> {
-            //if hits the battle, reverse:
-            if (ball.getTranslateX() <= 15) {
-                if ((humanPaddle.getY() <= ball.getTranslateY() && ball.getTranslateY() <= (humanPaddle.getY() + PLAYER_HEIGHT))) {
-                    playerScore++;
-                    score.setText("" + playerScore);
-                    ptBall.setRate(ptBall.getRate() * -1);
-                    if (ptBall.getRate() > 0) {
-                        ptBall.setRate(ptBall.getRate() + 0.5);
-                    } else {
-                        ptBall.setRate(ptBall.getRate() - 0.5);
-                    }
-
-                    ptBall.play();
-
-                } else {
-                    if (lives > 1) {
-                        lives--;
-                        currentLives.setText("" + lives);
-                        ptBall.setRate(ptBall.getRate() * -1);
-                        if (ptBall.getRate() > 0) {
-                            ptBall.setRate(ptBall.getRate() + 0.5);
-                        } else {
-                            ptBall.setRate(ptBall.getRate() - 0.5);
-                        }
-                        ptBall.play();
-                    } else {
-                        primaryStage.setScene(overScreen);
-                        finalScore.setText("" + playerScore);
-                        ptBall.stop();
-                    }
-
-                }
-
-            } else {
-                if (ball.getTranslateX() >= 785) {
-                    if ((computerPaddle.getY() <= ball.getTranslateY() && ball.getTranslateY() <= (computerPaddle.getY() + PLAYER_HEIGHT))) {
-                        ptBall.setRate(ptBall.getRate() * -1);
-                        ptBall.play();
-
-                    } else {//else, lose a point / Gameover because you missed
-                        primaryStage.setScene(overScreen);
-                        finalScore.setText("" + playerScore);
-                        ptBall.stop();
-
-                    }
-                }
-            }
-
-        });
         ptBall.play();
+
 
     }
 
@@ -469,6 +411,140 @@ public class PongColorTest extends Application {
         }
     }
 
+    /**
+     * Calculates a new line to be assigned as the animation path for the ball
+     * returns a line with properly calculated star and end points of the path
+     */
+    public Line hitSideAndBounce() {
+        Line path;
+
+        double startX = ballPath.getStartX();
+        double startY = ballPath.getStartY();
+        double endX = ballPath.getEndX();
+        double endY = ballPath.getEndY();
+
+        // path = new Line(ball.getTranslateX(), ball.getTranslateY(), ((-1*yInt+HEIGHT)/slope), ballPath.getStartY());
+
+        if (startY <= HEIGHT / 2) {
+            //Coming from the top half of the screen
+            System.out.println("Coming from the top");
+            path = new Line(ball.getTranslateX(), ball.getTranslateY(), startX, ((endY - startY) + endY));
+
+
+        } else {
+            //Coming from the bottom half of the screen
+            System.out.println("Coming from the bottom");
+            path = new Line(ball.getTranslateX(), ball.getTranslateY(), startX, (endY - (startY - endY)));
+        }
+        System.out.println("Start y: " + startY);
+        //System.out.println(path);
+        return path;
+
+
+    }
+
+    /**
+     * @returns a line for the animation path if the ball hits the top or bottom of the screen (tied to event listener)
+     */
+    public Line hitsTopOrBottomAndBounce() {
+        Line path;
+
+        double startX = ballPath.getStartX();
+        double startY = ballPath.getStartY();
+        double endX = ball.getTranslateX();
+        double endY = ball.getTranslateY();
+
+        System.out.println("Start x:" + startX);
+        if (startX > PLAYER_WIDTH + 5) {
+            //Coming from the computer paddle and touching border
+            System.out.println("Hitting the side and bouncing toward the human");
+            path = new Line(ball.getTranslateX(), ball.getTranslateY(), (endX + (endX - startX)), startY);
+        } else {
+            //Coming from human paddle and touching boarder
+            System.out.println("Hitting the side and bouncing toward the computer");
+            path = new Line(ball.getTranslateX(), ball.getTranslateY(), (endX - (startX - endX)), startY);
+
+        }
+        // System.out.println(path);
+        return path;
+    }
+
+
+    /**
+     * Returns an ArrayList holding the slope and y-intercept of a line given two points.
+     */
+    public ArrayList<Double> calcSlopeAndInt(double x1, double y1, double x2, double y2) {
+        double m = 0;
+        double b = 0;
+
+        m = (y2 - y1) / (x2 - x1);
+        b = y1 - m * x1;
+
+        ArrayList<Double> mAndB = new ArrayList<Double>();
+
+        mAndB.add(m);
+        mAndB.add(b);
+
+        return mAndB;
+
+        //b = m(-15) + yA---> y=mx+b ==> b=y-mx
+        // System.out.println("Start Y: " + ballPath.getStartY());
+        //System.out.println("the y intercept: " + slope * (-15) + ballPath.getStartY());
+    }
+
+
+    /**
+     * Tied to the event listener for the ball animation, this method controls when and how the ball will bounce back and forth when it hits each paddle, or not
+     * The majority of the game/animation logic is here
+     */
+    public void animate() {
+        if (ball.getTranslateX() <= PLAYER_WIDTH) {
+            ptBall.stop();
+            //if near the human paddle
+
+            if (humanPaddle.getY() <= ball.getTranslateY() && ball.getTranslateY() <= (humanPaddle.getY() + PLAYER_HEIGHT)){
+                //if it touches the human paddle
+                System.out.println("Hit the human paddle");
+                playerScore++;
+                score.setText("" + playerScore);
+                //ptBall.stop();
+                ptBall.setPath(hitSideAndBounce());
+                ptBall.play();
+
+            } else {
+                //if it misses the paddle
+                System.out.println("Missed the human paddle");
+                if (lives > 1) {
+                    //if there are still lives left
+                    System.out.println("Lives left");
+                    lives--;
+                    currentLives.setText("" + lives);
+                    // ptBall.stop();
+                    ptBall.setPath(hitSideAndBounce());
+                    ptBall.play();
+                } else {
+                    //missed paddle and no more lives--> end game
+                    System.out.println("No more lives");
+                    primaryStage.setScene(overScreen);
+                    finalScore.setText("" + playerScore);
+                    ptBall.stop();
+                }
+
+            }
+
+        } else if (ball.getTranslateX() >= 785 && (computerPaddle.getY() <= ball.getTranslateY() && (ball.getTranslateY() <= (computerPaddle.getY() + PLAYER_HEIGHT)))) {
+            //if near the computer paddle
+            ptBall.stop();
+            System.out.println("Hit the computer paddle");
+            //ptBall.stop();
+            ptBall.setPath(hitSideAndBounce());
+            ptBall.play();
+
+        }
+    }
 }
+
+
+
 
 
