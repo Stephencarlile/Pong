@@ -25,6 +25,7 @@ import java.util.Random;
 /**
  * Class defines Nicolas and Stephen's version of the classic PONG GAME
  * CS2040 Final Project
+ * Makes use of Players.java class for scoreboard feature
  */
 public class Pong extends Application {
     //Global variable declarations
@@ -52,9 +53,11 @@ public class Pong extends Application {
     //private Line ballStartPath = new Line(15, rand.nextInt(HEIGHT), 700, HEIGHT);
     //private Line ballStartPath = new Line(15, 20, 700, HEIGHT);
     //private Line ballStartPath = new Line(15, 600, 500, 0);//hits top right  from bottom left
-    // private Line ballStartPath = new Line(785, 600, 200, 0);//hits top left  from bottom right
+    //private Line ballStartPath = new Line(785, 600, 200, 0);//hits top left  from bottom right
     //private Line ballStartPath = new Line(785, 20, 200,HEIGHT);//hits bottom left from top right
-    private Line ballStartPath = new Line(15, 20, 600, HEIGHT);//hits bottom right from top left
+    // private Line ballStartPath = new Line(15, 20, 600, HEIGHT);//hits bottom right from top left
+    //private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, HEIGHT/2, 15, HEIGHT/2);//hits bottom right from top left
+private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 15, rand.nextInt(HEIGHT));
 
     //Global node declarations
     //global window widgets for the START SCREEN
@@ -194,196 +197,20 @@ public class Pong extends Application {
         });
         //Follows the X property of ball and checks if it hits paddles or not, updates scores and lives accordingly
         ball.translateXProperty().addListener(e -> {
-            if (ball.getTranslateX() == WIDTH - PLAYER_WIDTH) {
-                double touchX = WIDTH - PLAYER_WIDTH;
-                double touchY = ballPath.getEndY();
-                double d = ballPath.getStartY() - touchY;
-                double nY = touchY - d;
-                double nX = ballPath.getStartX();
-
-                double oldDistance = Math.sqrt((Math.pow(ballPath.getStartX() - touchX, 2) + Math.pow(ballPath.getStartY() - touchY, 2)));
-
-                ArrayList<Double> lineCoefficients = calcSlopeAndInt(touchX, touchY, nX, nY);
-
-                if (ballPath.getStartY() >= HEIGHT / 2) {
-                    //hit the computer paddle from the bottom half of the screen
-                    nY = 0;
-                } else {
-                    //hit the computer paddle from the top half of the screen
-                    nY = HEIGHT;
-                }
-                nX = (1 / lineCoefficients.get(0) * (nY - lineCoefficients.get(1)));
-
-                ballPath = (new Line(touchX, touchY, nX, nY));
-
-                double oldRate = ptBall.getRate();
-                double nDistance = Math.sqrt((Math.pow(nX - touchX, 2) + Math.pow(nY - touchY, 2)));
-                double nRate = (oldRate * nDistance) / oldDistance + 1;
-                //System.out.println(ptBall.getRate());
-
-                ptBall.stop();
-                ptBall.setPath(ballPath);
-                ptBall.setRate(nRate);
-                ptBall.play();
-            }
-            if (ball.getTranslateX() == PLAYER_WIDTH) {
-                double touchX = PLAYER_WIDTH;
-                double touchY = ballPath.getEndY();
-                double d = ballPath.getStartY() - touchY;
-                double nY = touchY - d;
-                double nX = ballPath.getStartX();
-
-                double oldDistance = Math.sqrt((Math.pow(ballPath.getStartX() - touchX, 2) + Math.pow(ballPath.getStartY() - touchY, 2)));
-
-                ArrayList<Double> lineCoefficients = calcSlopeAndInt(touchX, touchY, nX, nY);
-
-                if (ballPath.getStartY() >= HEIGHT / 2) {
-                    //hit the computer paddle from the bottom half of the screen
-                    nY = 0;
-                } else {
-                    //hit the computer paddle from the top half of the screen
-                    nY = HEIGHT;
-                }
-                nX = (1 / lineCoefficients.get(0) * (nY - lineCoefficients.get(1)));
-
-                ballPath = (new Line(touchX, touchY, nX, nY));
-
-                double oldRate = ptBall.getRate();
-                double nDistance = Math.sqrt((Math.pow(nX - touchX, 2) + Math.pow(nY - touchY, 2)));
-                double nRate = (oldRate * nDistance) / oldDistance + 1;
-                //System.out.println(ptBall.getRate());
-
-                if (humanPaddle.getY() <= ball.getTranslateY() && ball.getTranslateY() <= (humanPaddle.getY() + PLAYER_HEIGHT)) {
-                    //if it touches the human paddle
-                    playerScore++;
-                    score.setText("" + playerScore);
-                    ptBall.stop();
-                    ptBall.setPath(ballPath);
-                    ptBall.setRate(nRate);
-                    ptBall.play();
-
-                } else {
-                    //if it misses the paddle
-                    System.out.println("Missed the human paddle");
-                    if (lives > 1) {
-                        //if there are still lives left
-                        System.out.println("Lives left");
-                        lives--;
-                        currentLives.setText("" + lives);
-                        ptBall.stop();
-                        ptBall.setPath(ballPath);
-                        ptBall.setRate(nRate);
-                        ptBall.play();
-                    } else {
-                        //missed paddle and no more lives--> end game
-                        System.out.println("No more lives");
-                        primaryStage.setScene(overScreen);
-                        finalScore.setText("" + playerScore);
-                        ptBall.stop();
-                    }
-                }
-
-            }
+            animateX();
         });
-        ball.translateYProperty().
+        ball.translateYProperty().addListener(e -> {
+            animateY();
 
-                addListener(e ->
+        });
 
-                {
-                    if (ball.getTranslateY() == HEIGHT) {
-                        //Ball hitting the bottom of the screen
-                        System.out.println("hitting the bottom coming from the left");
-                        double touchX = ballPath.getEndX();
-                        double touchY = HEIGHT;
-                        double d = touchX - ballPath.getStartX();
-                        double nY = ballPath.getStartY();
-                        double nX = touchX + d;
+        ptBall.pathProperty().addListener(e -> {
+            ballPath = (Line) ptBall.getPath();
+            System.out.println(ballPath);
 
-                        double oldDistance = Math.sqrt((Math.pow(ballPath.getStartX() - touchX, 2) + Math.pow(ballPath.getStartY() - touchY, 2)));
+        });
 
-                        ArrayList<Double> lineCoefficients = calcSlopeAndInt(touchX, touchY, nX, nY);
-                        if (ballPath.getStartX() <= WIDTH / 2) {
-                            //ball coming from the left
-                            nX = WIDTH - PLAYER_WIDTH;
-
-                        } else {
-                            //ball coming from the right
-                            nX = PLAYER_WIDTH;
-                        }
-                        nY = lineCoefficients.get(0) * nX + lineCoefficients.get(1);
-
-                        ballPath = (new Line(touchX, touchY, nX, nY));
-                        double oldRate = ptBall.getRate();
-                        double nDistance = Math.sqrt((Math.pow(nX - touchX, 2) + Math.pow(nY - touchY, 2)));
-
-                        double nRate = (oldRate * nDistance) / oldDistance + 1;
-                        //System.out.println(ptBall.getRate());
-
-
-                        ptBall.stop();
-                        ptBall.setPath(ballPath);
-                        ptBall.setRate(nRate);
-                        ptBall.play();
-                    }
-
-                    if (ball.getTranslateY() == 0) {
-                        //ball hits the top of the window
-                        double touchX = ballPath.getEndX();
-                        double touchY = 0;
-                        double d = touchX - ballPath.getStartX();
-                        double nY = ballPath.getStartY();
-                        double nX = touchX + d;
-
-                        double oldDistance = Math.sqrt((Math.pow(ballPath.getStartX() - touchX, 2) + Math.pow(ballPath.getStartY() - touchY, 2)));
-                        ArrayList<Double> lineCoefficients = calcSlopeAndInt(touchX, touchY, nX, nY);
-
-                        if (ballPath.getStartX() <= WIDTH / 2) {
-                            //ball coming from the left
-                            nX = WIDTH - PLAYER_WIDTH;
-
-                        } else {
-                            //ball coming from the right
-                            nX = PLAYER_WIDTH;
-                        }
-                        nY = lineCoefficients.get(0) * nX + lineCoefficients.get(1);
-
-                        ballPath = (new Line(touchX, touchY, nX, nY));
-
-                        double oldRate = ptBall.getRate();
-                        double nDistance = Math.sqrt((Math.pow(nX - touchX, 2) + Math.pow(nY - touchY, 2)));
-                        double nRate = (oldRate * nDistance) / oldDistance + 1;
-                        //System.out.println(ptBall.getRate());
-
-                        ptBall.stop();
-                        ptBall.setPath(ballPath);
-                        ptBall.setRate(nRate);
-                        ptBall.play();
-                    }
-
-//            if ((ball.getTranslateY() >= HEIGHT || ball.getTranslateY() <= 0) && (ball.getTranslateX() >= 15 && ball.getTranslateX() <= 785)) {
-//                //Ball Hit the top or bottom and is not near one of the paddles
-//                System.out.println("Hit border");
-//                ptBall.stop();
-//                ptBall.setPath(hitsTopOrBottomAndBounce());
-//                ptBall.play();
-//            }
-
-                });
-
-
-        ptBall.pathProperty().
-
-                addListener(e ->
-
-                {
-                    ballPath = (Line) ptBall.getPath();
-                    System.out.println(ballPath);
-
-                });
-
-        gameScreen.setOnMouseMoved(e ->
-
-        {
+        gameScreen.setOnMouseMoved(e -> {
             humanPaddle.setY(e.getY());
             //debugging purposes
             //System.out.printf("py: %f, px: %f, by: %f, bx: %f \n", humanPaddle.getY(),humanPaddle.getX(),ball.getTranslateY(),ball.getTranslateX());
@@ -505,6 +332,7 @@ public class Pong extends Application {
         primaryStage.show();
 
     }
+
     /**
      * Resets all variables and positions to default for game start
      */
@@ -528,11 +356,12 @@ public class Pong extends Application {
         tbv.setVisible(false);
         tbv.getItems().clear();
 
-        //Unselects the check box ?
+        //Unselects the checkbox ?
         checkForContrast.setSelected(false);
 
         //Reset animation path
-        ballStartPath = new Line(15, rand.nextInt(HEIGHT), 700, HEIGHT);
+        // ballStartPath = new Line(15, rand.nextInt(HEIGHT), 700, HEIGHT);
+        ballStartPath = new Line(15, 20, 600, HEIGHT);
         ptBall.stop();
         ptBall.setPath(ballStartPath);
 
@@ -673,6 +502,221 @@ public class Pong extends Application {
 
     public Line clone(Line l) {
         return new Line(l.getStartX(), l.getStartY(), l.getEndX(), l.getEndY());
+    }
+
+    /**
+     * Keeps the ball animating within the y values of the screen and makes the ball bounce as it should if it hits the top or bottom
+     */
+    public void animateY() {
+        //System.out.println("animateY called");
+        if (ball.getTranslateY() == HEIGHT){//  && (ball.getTranslateX()>PLAYER_WIDTH&&ball.getTranslateX()<WIDTH-PLAYER_WIDTH)) {
+            //Ball hitting the bottom of the screen
+            System.out.println("hitting the bottom coming from the left");
+            double touchX = ballPath.getEndX();
+            double touchY = HEIGHT;
+            double d = touchX - ballPath.getStartX();
+            double nY = ballPath.getStartY();
+            double nX;
+
+            if (ballPath.getStartX() <= WIDTH / 2) {
+
+                //ball coming from the left
+                 nX = touchX + d;
+
+            } else {
+                //ball coming from the right
+                nX = touchX - d;
+            }
+
+            double oldDistance = Math.sqrt((Math.pow(ballPath.getStartX() - touchX, 2) + Math.pow(ballPath.getStartY() - touchY, 2)));
+            double nDistance = Math.sqrt((Math.pow(nX - touchX, 2) + Math.pow(nY - touchY, 2)));
+            double oldRate = ptBall.getRate();
+            double nRate = (oldRate * nDistance) / oldDistance;
+
+            ArrayList<Double> lineCoefficients = calcSlopeAndInt(touchX, touchY, nX, nY);
+
+            if (ballPath.getStartX() <= WIDTH / 2) {
+
+                //ball coming from the left
+                nX = WIDTH - PLAYER_WIDTH;
+
+
+            } else {
+                //ball coming from the right
+                nX = PLAYER_WIDTH;
+            }
+            nY=ballPath.getStartY();
+            //nY = lineCoefficients.get(0) * nX + lineCoefficients.get(1);
+
+            if (nY < 0) {
+                System.out.println("adjusting y to be pos");
+                nY = 0 - nY;
+            } else if (nY > HEIGHT) {
+                System.out.println("adjusting y to be less than height");
+                nY = nY - HEIGHT;
+            }
+
+            ptBall.stop();
+            ptBall.setPath(new Line(touchX, touchY, nX, nY));
+            ptBall.setRate(nRate);
+            ptBall.play();
+        }
+        if (ball.getTranslateY() == 0){// &&(ball.getTranslateX()>PLAYER_WIDTH&&ball.getTranslateX()<WIDTH-PLAYER_WIDTH)) {
+            //ball hits the top of the window
+            double touchX = ballPath.getEndX();
+            double touchY = 0;
+            double d = touchX - ballPath.getStartX();
+            double nY = ballPath.getStartY();
+            double nX;
+
+            if (ballPath.getStartX() <= WIDTH / 2) {
+
+                //ball coming from the left
+                nX = touchX + d;
+
+            } else {
+                //ball coming from the right
+                nX = touchX - d;
+            }
+
+            double oldDistance = Math.sqrt((Math.pow(ballPath.getStartX() - touchX, 2) + Math.pow(ballPath.getStartY() - touchY, 2)));
+            double nDistance = Math.sqrt((Math.pow(nX - touchX, 2) + Math.pow(nY - touchY, 2)));
+            double oldRate = ptBall.getRate();
+            double nRate = (oldRate * nDistance) / oldDistance;
+
+            ArrayList<Double> lineCoefficients = calcSlopeAndInt(touchX, touchY, nX, nY);
+
+            if (ballPath.getStartX() <= WIDTH / 2) {
+                //ball coming from the left
+                nX = WIDTH - PLAYER_WIDTH;
+
+            } else {
+                //ball coming from the right
+                nX = PLAYER_WIDTH;
+            }
+
+           // nY = lineCoefficients.get(0) * nX + lineCoefficients.get(1);
+            nY=ballPath.getStartY();
+            if (nY < 0) {
+                System.out.println("adjusting y");
+                nY = 0 - nY;
+            } else if (nY > HEIGHT) {
+                nY = nY - HEIGHT;
+            }
+
+            ptBall.stop();
+            ptBall.setPath(new Line(touchX, touchY, nX, nY));
+            ptBall.setRate(nRate);
+            ptBall.play();
+        }
+    }
+
+    /**
+     * Keeps the ball animating on the screen and checks if it hits the human paddle and updates scores/lives accordingly
+     */
+    public void animateX() {
+        //System.out.println("animateX called");
+        if (ball.getTranslateX() == WIDTH - PLAYER_WIDTH) {
+
+            double touchX = WIDTH - PLAYER_WIDTH;
+            double touchY = ballPath.getEndY();
+            double d = ballPath.getStartY() - touchY;
+            double nY = touchY - d;
+            double nX = ballPath.getStartX();
+
+            double oldDistance = Math.sqrt((Math.pow(ballPath.getStartX() - touchX, 2) + Math.pow(ballPath.getStartY() - touchY, 2)));
+            double nDistance = Math.sqrt((Math.pow(nX - touchX, 2) + Math.pow(nY - touchY, 2)));
+            double oldRate = ptBall.getRate();
+            double nRate = (oldRate * nDistance) / oldDistance;
+
+            ArrayList<Double> lineCoefficients = calcSlopeAndInt(touchX, touchY, nX, nY);
+
+            if (ballPath.getStartY() >= HEIGHT / 2) {
+                //hit the computer paddle from the bottom half of the screen
+                nY = 0;
+            } else {
+                //hit the computer paddle from the top half of the screen
+                nY = HEIGHT;
+            }
+            nX = ((1 / lineCoefficients.get(0)) * (nY - lineCoefficients.get(1)));
+
+            if (nX < PLAYER_WIDTH) {
+                System.out.println("adjusting x to be equal to player width");
+                nX = PLAYER_HEIGHT;
+            } else if (nX > WIDTH - PLAYER_WIDTH) {
+                System.out.println("adjusting x to be equal to the width");
+                nX = WIDTH - PLAYER_WIDTH;
+            }
+
+            ptBall.stop();
+            ptBall.setPath(new Line(touchX, touchY, nX, nY));
+            ptBall.setRate(nRate);
+            ptBall.play();
+
+
+        }
+        if (ball.getTranslateX() == PLAYER_WIDTH) {
+
+            double touchX = PLAYER_WIDTH;
+            double touchY = ballPath.getEndY();
+            double d = ballPath.getStartY() - touchY;
+            double nY = touchY - d;
+            double nX = ballPath.getStartX();
+
+            double oldDistance = Math.sqrt((Math.pow(ballPath.getStartX() - touchX, 2) + Math.pow(ballPath.getStartY() - touchY, 2)));
+            double nDistance = Math.sqrt((Math.pow(nX - touchX, 2) + Math.pow(nY - touchY, 2)));
+            double oldRate = ptBall.getRate();
+            double nRate = (oldRate * nDistance) / oldDistance;
+
+            ArrayList<Double> lineCoefficients = calcSlopeAndInt(touchX, touchY, nX, nY);
+
+            if (ballPath.getStartY() >= HEIGHT / 2) {
+                //hit the computer paddle from the bottom half of the screen
+                nY = 0;
+            } else {
+                //hit the computer paddle from the top half of the screen
+                nY = HEIGHT;
+            }
+            nX = (1 / lineCoefficients.get(0) * (nY - lineCoefficients.get(1)));
+            if (nX < PLAYER_WIDTH) {
+                System.out.println("adjusting x to be equal to player width");
+                nX = PLAYER_HEIGHT;
+            } else if (nX > WIDTH - PLAYER_WIDTH) {
+                System.out.println("adjusting x to be equal to the width");
+                nX = WIDTH - PLAYER_WIDTH;
+            }
+
+            if (humanPaddle.getY() <= ball.getTranslateY() && ball.getTranslateY() <= (humanPaddle.getY() + PLAYER_HEIGHT)) {
+                //if it touches the human paddle
+                playerScore++;
+                score.setText("" + playerScore);
+                ptBall.stop();
+                ptBall.setPath(new Line(touchX, touchY, nX, nY));
+                ptBall.setRate(nRate);
+                ptBall.play();
+
+            } else {
+                //if it misses the paddle
+                System.out.println("Missed the human paddle");
+                if (lives > 1) {
+                    //if there are still lives left
+                    System.out.println("Lives left");
+                    lives--;
+                    currentLives.setText("" + lives);
+                    ptBall.stop();
+                    ptBall.setPath(new Line(touchX, touchY, nX, nY));
+                    ptBall.setRate(nRate);
+                    ptBall.play();
+                } else {
+                    //missed paddle and no more lives--> end game
+                    System.out.println("No more lives");
+                    primaryStage.setScene(overScreen);
+                    finalScore.setText("" + playerScore);
+                    ptBall.stop();
+                }
+            }
+
+        }
     }
 }
 
