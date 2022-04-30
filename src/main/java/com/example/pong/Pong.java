@@ -361,7 +361,8 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
 
         //Reset animation path
         // ballStartPath = new Line(15, rand.nextInt(HEIGHT), 700, HEIGHT);
-        ballStartPath = new Line(15, 20, 600, HEIGHT);
+        //ballStartPath = new Line(15, 20, 600, HEIGHT);
+        ballStartPath=new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 15, rand.nextInt(HEIGHT));
         ptBall.stop();
         ptBall.setPath(ballStartPath);
 
@@ -450,56 +451,6 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
         //System.out.println("the y intercept: " + slope * (-15) + ballPath.getStartY());
     }
 
-
-//    /**
-//     * Tied to the event listener for the ball animation, this method controls when and how the ball will bounce back and forth when it hits each paddle, or not
-//     * The majority of the game/animation logic is here
-//     */
-//    public void animate() {
-//        if (ball.getTranslateX() <= PLAYER_WIDTH) {
-//            ptBall.stop();
-//            //if near the human paddle
-//            if (humanPaddle.getY() <= ball.getTranslateY() && ball.getTranslateY() <= (humanPaddle.getY() + PLAYER_HEIGHT)) {
-//                //if it touches the human paddle
-//                System.out.println("Hit the human paddle");
-//                playerScore++;
-//                score.setText("" + playerScore);
-//                //ptBall.stop();
-//                ptBall.setPath(hitSideAndBounce());
-//                ptBall.play();
-//
-//            } else {
-//                //if it misses the paddle
-//                System.out.println("Missed the human paddle");
-//                if (lives > 1) {
-//                    //if there are still lives left
-//                    System.out.println("Lives left");
-//                    lives--;
-//                    currentLives.setText("" + lives);
-//                    // ptBall.stop();
-//                    ptBall.setPath(hitSideAndBounce());
-//                    ptBall.play();
-//                } else {
-//                    //missed paddle and no more lives--> end game
-//                    System.out.println("No more lives");
-//                    primaryStage.setScene(overScreen);
-//                    finalScore.setText("" + playerScore);
-//                    ptBall.stop();
-//                }
-//
-//            }
-//
-//        } else if (ball.getTranslateX() >= 785 && (computerPaddle.getY() <= ball.getTranslateY() && (ball.getTranslateY() <= (computerPaddle.getY() + PLAYER_HEIGHT)))) {
-//            //if near the computer paddle
-//            ptBall.stop();
-//            System.out.println("Hit the computer paddle");
-//            //ptBall.stop();
-//            ptBall.setPath(hitSideAndBounce());
-//            ptBall.play();
-//
-//        }
-//    }
-
     public Line clone(Line l) {
         return new Line(l.getStartX(), l.getStartY(), l.getEndX(), l.getEndY());
     }
@@ -509,7 +460,7 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
      */
     public void animateY() {
         //System.out.println("animateY called");
-        if (ball.getTranslateY() == HEIGHT){//  && (ball.getTranslateX()>PLAYER_WIDTH&&ball.getTranslateX()<WIDTH-PLAYER_WIDTH)) {
+        if ((ball.getTranslateY() == HEIGHT)  && (ball.getTranslateX()>PLAYER_WIDTH&&ball.getTranslateX()<WIDTH-PLAYER_WIDTH)) {
             //Ball hitting the bottom of the screen
             System.out.println("hitting the bottom coming from the left");
             double touchX = ballPath.getEndX();
@@ -545,7 +496,7 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
                 //ball coming from the right
                 nX = PLAYER_WIDTH;
             }
-            nY=ballPath.getStartY();
+           nY=ballPath.getStartY();
             //nY = lineCoefficients.get(0) * nX + lineCoefficients.get(1);
 
             if (nY < 0) {
@@ -557,11 +508,12 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
             }
 
             ptBall.stop();
-            ptBall.setPath(new Line(touchX, touchY, nX, nY));
+           // ptBall.setPath(new Line(touchX, touchY, nX, nY));
+            ptBall.setPath(new Line(touchX, touchY, nX, rand.nextInt(HEIGHT)));
             ptBall.setRate(nRate);
             ptBall.play();
         }
-        if (ball.getTranslateY() == 0){// &&(ball.getTranslateX()>PLAYER_WIDTH&&ball.getTranslateX()<WIDTH-PLAYER_WIDTH)) {
+        if (ball.getTranslateY() == 0 &&(ball.getTranslateX()>PLAYER_WIDTH&&ball.getTranslateX()<WIDTH-PLAYER_WIDTH)) {
             //ball hits the top of the window
             double touchX = ballPath.getEndX();
             double touchY = 0;
@@ -595,17 +547,19 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
                 nX = PLAYER_WIDTH;
             }
 
-           // nY = lineCoefficients.get(0) * nX + lineCoefficients.get(1);
-            nY=ballPath.getStartY();
+            //nY = lineCoefficients.get(0) * nX + lineCoefficients.get(1);
+           nY=ballPath.getStartY();
             if (nY < 0) {
-                System.out.println("adjusting y");
+                System.out.println("adjusting y to be pos");
                 nY = 0 - nY;
             } else if (nY > HEIGHT) {
+                System.out.println("adjusting y to be less than height");
                 nY = nY - HEIGHT;
             }
 
             ptBall.stop();
-            ptBall.setPath(new Line(touchX, touchY, nX, nY));
+           // ptBall.setPath(new Line(touchX, touchY, nX, nY));
+            ptBall.setPath(new Line(touchX, touchY, nX, rand.nextInt(HEIGHT)));
             ptBall.setRate(nRate);
             ptBall.play();
         }
@@ -617,7 +571,7 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
     public void animateX() {
         //System.out.println("animateX called");
         if (ball.getTranslateX() == WIDTH - PLAYER_WIDTH) {
-
+            //near the computer paddle
             double touchX = WIDTH - PLAYER_WIDTH;
             double touchY = ballPath.getEndY();
             double d = ballPath.getStartY() - touchY;
@@ -649,14 +603,15 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
             }
 
             ptBall.stop();
-            ptBall.setPath(new Line(touchX, touchY, nX, nY));
-            ptBall.setRate(nRate);
+            //ptBall.setPath(new Line(touchX, touchY, nX, nY));
+            ptBall.setPath(new Line(touchX, touchY, rand.nextInt(HEIGHT), nY));
+            ptBall.setRate(nRate+0.2);
             ptBall.play();
 
 
         }
         if (ball.getTranslateX() == PLAYER_WIDTH) {
-
+            //ball near the human paddle
             double touchX = PLAYER_WIDTH;
             double touchY = ballPath.getEndY();
             double d = ballPath.getStartY() - touchY;
@@ -691,8 +646,9 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
                 playerScore++;
                 score.setText("" + playerScore);
                 ptBall.stop();
-                ptBall.setPath(new Line(touchX, touchY, nX, nY));
-                ptBall.setRate(nRate);
+               // ptBall.setPath(new Line(touchX, touchY, nX, nY));
+                ptBall.setPath(new Line(touchX, touchY, rand.nextInt(HEIGHT), nY));
+                ptBall.setRate(nRate+0.2);
                 ptBall.play();
 
             } else {
@@ -704,8 +660,9 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
                     lives--;
                     currentLives.setText("" + lives);
                     ptBall.stop();
-                    ptBall.setPath(new Line(touchX, touchY, nX, nY));
-                    ptBall.setRate(nRate);
+                  //  ptBall.setPath(new Line(touchX, touchY, nX, nY));
+                    ptBall.setPath(new Line(touchX, touchY, rand.nextInt(HEIGHT), nY));
+                    ptBall.setRate(nRate+0.2);
                     ptBall.play();
                 } else {
                     //missed paddle and no more lives--> end game
