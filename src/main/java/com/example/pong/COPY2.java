@@ -33,7 +33,7 @@ public class COPY2 extends Application {
     private static final double BALL_RADIUS = 15;
     private int playerScore = 0;
     private int lives = 3;
-    private static List<Players> scoreBoard = new ArrayList<Players>();//arrayList to store scores for scoreboards
+    private static List<Players1> scoreBoard = new ArrayList<Players1>();//arrayList to store scores for scoreboards
     private boolean highContrast = false;
     private Color backgroundColor = Color.BLACK;
     private Color fontColor = Color.BLACK;
@@ -348,9 +348,9 @@ public class COPY2 extends Application {
         enterNameArea.setLayoutY(HEIGHT / 2);
 
         // Create two columns for the scoreboard table
-        TableColumn<String, Players> cl1 = new TableColumn<>("Player Name");
+        TableColumn<String, Players1> cl1 = new TableColumn<>("Player Name");
         cl1.setCellValueFactory(new PropertyValueFactory<>("name"));
-        TableColumn<Integer, Players> cl2 = new TableColumn<>("Player Score");
+        TableColumn<Integer, Players1> cl2 = new TableColumn<>("Player Score");
         cl2.setCellValueFactory(new PropertyValueFactory<>("score"));
 
         // Add two columns into TableView for the scoreboard table
@@ -385,7 +385,7 @@ public class COPY2 extends Application {
         enter.setOnMouseClicked(e ->
 
         {
-            addScores(new Players(enterName.getText(), playerScore));
+            addScores(new Players1(enterName.getText(), playerScore));
             System.out.println(scoreBoard);
             updateBoard();
             tbv.setVisible(true);
@@ -545,13 +545,13 @@ public class COPY2 extends Application {
     /**
      * Arranges the best scores of all the players and their corresponding names ordered from highest to lowest scores
      */
-    public static void addScores(Players p) {
+    public static void addScores(Players1 p) {
         String name;
         double gpa;
         int index, ind = 0;
 
         if (scoreBoard.isEmpty()) {
-            scoreBoard.add(new Players(p.getName(), p.getScore()));
+            scoreBoard.add(new Players1(p.getName(), p.getScore()));
         } else {
             index = scoreBoard.size();
             if (p.getScore() > scoreBoard.get(index - 1).getScore()) {
@@ -565,9 +565,9 @@ public class COPY2 extends Application {
                     }
                     ind = index;
                 }
-                scoreBoard.add(ind, new Players(p.getName(), p.getScore()));
+                scoreBoard.add(ind, new Players1(p.getName(), p.getScore()));
             } else {
-                scoreBoard.add(ind, new Players(p.getName(), p.getScore()));
+                scoreBoard.add(ind, new Players1(p.getName(), p.getScore()));
             }
         }
     }
@@ -580,7 +580,7 @@ public class COPY2 extends Application {
         tbv.getItems().clear();
 
         // Load objects into table
-        for (Players p : scoreBoard) {
+        for (Players1 p : scoreBoard) {
             tbv.getItems().add(p);
         }
     }
