@@ -1,6 +1,5 @@
 package com.example.pong;
 
-import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.PathTransition;
 import javafx.application.Application;
@@ -38,10 +37,18 @@ public class Pong extends Application {
     private boolean highContrast = false;
     private Color backgroundColor = Color.BLACK;
     private Color fontColor = Color.BLACK;
+    private Color welcomeFont = Color.CYAN;
     private Color paddleColor = Color.BLACK;
+    private Color instructionsColor = Color.LIME;
     private Color ballColor = Color.LIME;
+    private Color checkConstrastColor = Color.FUCHSIA;
     //    private double currentSpeed = 1;
     private boolean gameStarted = false;
+
+    //Highest Contrast Colors
+    private Color fontHighContrast = Color.WHITE;
+    private Color paddleAndBall = Color.WHITE;
+    //private String buttonColorHighContrast = "";
 
     //Random object global declaration
     Random rand = new Random();
@@ -106,11 +113,20 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
         //create the window widgets of the WELCOME SCREEN
         p1.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
 
+
+
+
         welcomeScreen.setFill(backgroundColor);
         Text welcome = new Text(160, HEIGHT / 3, "Welcome to PONG!");
         welcome.setFont(Font.font("Silom", FontWeight.EXTRA_BOLD, 50));
         welcome.setFill(fontColor);
-        welcome.setFill(Color.CYAN);
+        welcome.setFill(welcomeFont);
+
+        welcome.textProperty().addListener(e->{
+            if(highContrast){
+                welcome.setFill(fontHighContrast);
+            }
+        });
 
 
 
@@ -130,7 +146,7 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
                 "You have 3 lives, each time you miss the ball, you lose a life. \nAfter 3 lives are lost, the game is over." +
                 "\nAt the end of the game, enter your name to record your score for the player scoreboard." );
 
-        instructions.setFill(Color.LIME);
+        instructions.setFill(instructionsColor);
         instructions.setTextAlignment(TextAlignment.CENTER);
         instructions.setFont(Font.font("Silom", 13));
 
@@ -138,7 +154,7 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
 
         //Check for contrast button
         checkForContrast.setLayoutY(HEIGHT - 20);
-        checkForContrast.setTextFill(Color.FUCHSIA);
+        checkForContrast.setTextFill(checkConstrastColor);
         checkForContrast.setFont(Font.font("Silom"));
 
 
@@ -153,30 +169,7 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
 
         });
 
-        checkForContrast.setOnAction((event) -> {
-            highContrast = checkForContrast.isSelected();
-            System.out.println(highContrast);
-            if (highContrast==true) {
-                welcome.setFill(Color.BLACK);
-                welcomeScreen.setFill(backgroundColor=Color.BLACK);
-                overScreen.setFill(backgroundColor=Color.BLACK);
-                instructions.setFill(Color.BLACK);
-                start.setTextFill(Color.BLACK);
-                gameScreen.setFill(Color.BLACK);
-                paddleColor = Color.WHITE;
-                ballColor = Color.WHITE;
 
-            }
-            if(checkForContrast.isIndeterminate()){
-                welcomeScreen.setFill(Color.RED);
-
-            }
-            else {
-                fontColor=Color.RED;
-            }
-
-
-        });
 
 //        checkForContrast.selectedProperty().addListener(e -> {
 //            highContrast = true;
@@ -310,6 +303,7 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
 
         //Creates Game Over Image
         Image gameOverImage = new Image("file:gameoverimage.jpg");
+        Image gameOverImageBW = new Image("file:gameoverBW.jpeg");
         ImageView viewGameOverImage = new ImageView(gameOverImage);
         viewGameOverImage.setY(25);
         viewGameOverImage.setX(200);
@@ -416,6 +410,74 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
             ptBall.play();
         });
 
+        checkForContrast.setOnAction((event) -> {
+            highContrast = checkForContrast.isSelected();
+            System.out.println(highContrast);
+            if (highContrast==true) {
+                //Welcome Screen
+                welcome.setFill(fontHighContrast);
+                instructions.setFill(fontHighContrast);
+                start.setStyle("");
+                start.setStyle("{ -fx-text-fill: white; }");
+                start.setTextFill(Color.BLACK);
+                checkForContrast.setTextFill(fontHighContrast);
+
+                //Game Screen
+                quit.setStyle("{ -fx-text-fill: white; }");
+                ball.setFill(paddleAndBall);
+                humanPaddle.setFill(paddleAndBall);
+                computerPaddle.setFill(paddleAndBall);
+                scoreLabel.setFill(fontHighContrast);
+                score.setTextFill(fontHighContrast);
+                livesLabel.setFill(fontHighContrast);
+                currentLives.setTextFill(fontHighContrast);
+
+                //Game Over Screen
+                quit2.setStyle("{ -fx-text-fill: white; }");
+                restart.setStyle("{ -fx-text-fill: white; }");
+                enterLabel.setTextFill(fontHighContrast);
+                finalScoreText.setFill(fontHighContrast);
+                finalScore.setTextFill(fontHighContrast);
+                enter.setStyle("{ -fx-text-fill: white; }");
+                viewGameOverImage.setImage(gameOverImageBW);
+
+
+
+            }
+
+            else {
+                //Welcome Screen
+                welcome.setFill(welcomeFont);
+                instructions.setFill(instructionsColor);
+                start.setStyle("-fx-background-color: #ff0000; ");
+                checkForContrast.setTextFill(checkConstrastColor);
+
+                //Game Screen
+                quit.setStyle("-fx-background-color: #FF00FF; ");
+                ball.setFill(ballColor);
+                humanPaddle.setFill(Color.BLUE);
+                computerPaddle.setFill(Color.RED);
+                scoreLabel.setFill(Color.CYAN);
+                score.setTextFill(Color.CYAN);
+                livesLabel.setFill(Color.CYAN);
+                currentLives.setTextFill(Color.CYAN);
+
+                //Game Over Screen
+                quit2.setStyle("-fx-background-color: #FF00FF; ");
+                restart.setStyle("-fx-background-color: #FF00FF; ");
+                enterLabel.setTextFill(Color.LIMEGREEN);
+                finalScoreText.setFill(Color.LIMEGREEN);
+                finalScore.setTextFill(Color.LIMEGREEN);
+                enter.setStyle("-fx-background-color: #FF00FF; ");
+                viewGameOverImage.setImage(gameOverImage);
+
+
+
+
+
+            }
+
+        });
 
 
         // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -770,6 +832,15 @@ private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 
             }
 
         }
+    }
+
+    public void setToHighContrast(){
+
+
+        fontHighContrast = Color.WHITE;
+        paddleAndBall = Color.WHITE;
+        //buttonColor = "";
+
     }
 }
 
