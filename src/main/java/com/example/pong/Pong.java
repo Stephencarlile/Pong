@@ -35,23 +35,22 @@ public class Pong extends Application {
     private int lives = 3;
     private static List<Players> scoreBoard = new ArrayList<Players>();//arrayList to store scores for scoreboards
     private boolean highContrast = false;
+
+    //Normal Colors
     private Color backgroundColor = Color.BLACK;
     private Color fontColor = Color.BLACK;
     private Color welcomeFont = Color.CYAN;
-    private Color paddleColor = Color.BLACK;
     private Color instructionsColor = Color.LIME;
     private Color ballColor = Color.LIME;
     private Color checkConstrastColor = Color.FUCHSIA;
-    //    private double currentSpeed = 1;
-    private boolean gameStarted = false;
 
     //Highest Contrast Colors
     private Color fontHighContrast = Color.WHITE;
     private Color paddleAndBall = Color.WHITE;
-    //private String buttonColorHighContrast = "";
 
     //Random object global declaration
     Random rand = new Random();
+
     //Lines for path animation
     private Line ballPath = new Line(15, 100, 700, HEIGHT);
     // private Line ballStartPath = new Line(785, 20, 100, HEIGHT);
@@ -62,23 +61,20 @@ public class Pong extends Application {
     //private Line ballStartPath = new Line(785, 20, 200,HEIGHT);//hits bottom left from top right
     // private Line ballStartPath = new Line(15, 20, 600, HEIGHT);//hits bottom right from top left
     //private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, HEIGHT/2, 15, HEIGHT/2);//hits bottom right from top left
-    private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 15, rand.nextInt(HEIGHT));
+    private Line ballStartPath = new Line(WIDTH - PLAYER_WIDTH, rand.nextInt(HEIGHT), 15, rand.nextInt(HEIGHT));
 
     //Global node declarations
     //global window widgets for the START SCREEN
     CheckBox checkForContrast = new CheckBox("Check for High Contrast");
 
-
-
     //create the window widgets of the GAME SCREEN
     Rectangle humanPaddle = new Rectangle(0, 20, PLAYER_WIDTH, PLAYER_HEIGHT);
     Rectangle computerPaddle = new Rectangle(785, (HEIGHT / 2 - 75), PLAYER_WIDTH, PLAYER_HEIGHT);
     Circle ball = new Circle(0, 0, BALL_RADIUS);
-
     Label score = new Label("" + playerScore);
     Label currentLives = new Label("" + lives);
 
-    //Ball animation declarations
+    //Ball global animation declarations
     PathTransition ptBall = new PathTransition();
 
     //Global window widgets of the GAME OVER SCREEN
@@ -92,11 +88,10 @@ public class Pong extends Application {
     Pane p2 = new Pane();
     Pane p3 = new Pane();
 
-    //Declare the 3 screens of the game
+    //Declare the 3 screens/scenes of the game
     Scene welcomeScreen = new Scene(p1, WIDTH, HEIGHT);
     Scene gameScreen = new Scene(p2, WIDTH, HEIGHT);
     Scene overScreen = new Scene(p3, WIDTH, HEIGHT);
-
 
 
     //Stage declaration
@@ -111,25 +106,12 @@ public class Pong extends Application {
         this.primaryStage = primaryStage;
         //WELCOME SCREEN----------------------------------------------------------------------------------------------------------------------------------------------------------------------
         //create the window widgets of the WELCOME SCREEN
+        //Sets pane background color
         p1.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
 
-
-
-
-        welcomeScreen.setFill(backgroundColor);
         Text welcome = new Text(160, HEIGHT / 3, "Welcome to PONG!");
         welcome.setFont(Font.font("Silom", FontWeight.EXTRA_BOLD, 50));
-        welcome.setFill(fontColor);
         welcome.setFill(welcomeFont);
-
-        welcome.textProperty().addListener(e->{
-            if(highContrast){
-                welcome.setFill(fontHighContrast);
-            }
-        });
-
-
-
 
         Button start = new Button("Start Game");
         start.setLayoutX(340);
@@ -144,20 +126,15 @@ public class Pong extends Application {
         Text instructions = new Text(30, HEIGHT - 150, "Instructions: \nThe goal of the game is to hit the " +
                 "ball as many times as possible with your paddle. \nEach time you hit the ball, you receive 1 point." +
                 "You have 3 lives, each time you miss the ball, you lose a life. \nAfter 3 lives are lost, the game is over." +
-                "\nAt the end of the game, enter your name to record your score for the player scoreboard." );
-
+                "\nAt the end of the game, enter your name to record your score for the player scoreboard.");
         instructions.setFill(instructionsColor);
         instructions.setTextAlignment(TextAlignment.CENTER);
         instructions.setFont(Font.font("Silom", 13));
 
-
-
-        //Check for contrast button
+        //Checkbox for contrast
         checkForContrast.setLayoutY(HEIGHT - 20);
         checkForContrast.setTextFill(checkConstrastColor);
         checkForContrast.setFont(Font.font("Silom"));
-
-
 
         // define the pane hierarchy for the WELCOME SCREEN
         p1.getChildren().addAll(welcome, start, instructions, checkForContrast);
@@ -168,33 +145,13 @@ public class Pong extends Application {
             startGame();
 
         });
-
-
-
-//        checkForContrast.selectedProperty().addListener(e -> {
-//            highContrast = true;
-//            welcomeScreen.setFill(backgroundColor);
-//            instructions.setFill(fontColor);
-//            start.setTextFill(fontColor);
-//            welcome.setFill(fontColor);
-//
-//
-//        });
-//
-//        if (checkForContrast.isSelected()) {
-//            backgroundColor = Color.BLACK;
-//            fontColor = Color.WHITE;
-//            paddleColor = Color.WHITE;
-//            ballColor = Color.WHITE;
-//
-//        }
-
         //GAME SCREEN----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        //Sets pane colors + its nodes
         p2.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
-        gameScreen.setFill(backgroundColor);
         humanPaddle.setFill(Color.BLUE);
         computerPaddle.setFill(Color.RED);
         ball.setFill(ballColor);
+
         //create the window widgets of the GAME SCREEN
         Button quit = new Button("QUIT");
         quit.setLayoutX(WIDTH - 60);
@@ -215,15 +172,13 @@ public class Pong extends Application {
         score.setFont(Font.font("Silom", 16));
         score.setTextFill(Color.CYAN);
 
-
-
+        //lives label
         Text livesLabel = new Text("Lives Left:");
         livesLabel.setLayoutX(WIDTH / 2 - 45);
         livesLabel.setLayoutY(570);
         livesLabel.setFill(Color.CYAN);
         livesLabel.setFont(Font.font("Silom", 16));
 
-        //Lives label
         currentLives.setLayoutX(WIDTH / 2);
         currentLives.setLayoutY(580);
         currentLives.setTextFill(Color.CYAN);
@@ -243,13 +198,13 @@ public class Pong extends Application {
         {
             //computer paddle follows the ball y value
             computerPaddle.setY((ball.getTranslateY() - PLAYER_HEIGHT / 2));
-
-
         });
+
         //Follows the X property of ball and checks if it hits paddles or not, updates scores and lives accordingly
         ball.translateXProperty().addListener(e -> {
             animateX();
         });
+        //Follows the Y property of ball and checks if it hits paddles or not, updates scores and lives accordingly
         ball.translateYProperty().addListener(e -> {
             animateY();
 
@@ -279,8 +234,9 @@ public class Pong extends Application {
 //        });
 
         //GAME OVER SCREEN----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        //sets pane color for game over screen
         p3.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
-        overScreen.setFill(backgroundColor);
+
         //create the window widgets of the GAME OVER SCREEN
         Button quit2 = new Button("QUIT");
         quit2.setLayoutX(WIDTH - 50);
@@ -295,15 +251,10 @@ public class Pong extends Application {
         restart.setFont(Font.font("Silom"));
         restart.setStyle("-fx-background-color: #FF00FF; ");
 
-//        Text gameOver = new Text("GAME OVER !");
-//        gameOver.setX(WIDTH / 2 - 300);
-//        gameOver.setY(HEIGHT / 2 - 100);
-//        gameOver.setFont((Font.font("Silom", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 80)));
-//        gameOver.setFill(fontColor);
-
-        //Creates Game Over Image
+        //Creates Game Over Image(s)
         Image gameOverImage = new Image("file:gameoverimage.jpg");
         Image gameOverImageBW = new Image("file:gameoverBW.jpeg");
+
         ImageView viewGameOverImage = new ImageView(gameOverImage);
         viewGameOverImage.setY(25);
         viewGameOverImage.setX(200);
@@ -314,17 +265,16 @@ public class Pong extends Application {
 
         Label enterLabel = new Label("Please enter your name to add yourself to the scoreboard!");
         enterLabel.setTextFill(Color.LIMEGREEN);
-        enterLabel.setFont(Font.font("Silom",16));
+        enterLabel.setFont(Font.font("Silom", 16));
         enterLabel.setTranslateX(-60);
         Text finalScoreText = new Text("Your score: ");
         finalScoreText.setFill(Color.LIMEGREEN);
         finalScoreText.setFont(Font.font("Silom", 20));
         finalScore.setTextFill(Color.LIMEGREEN);
-        finalScore.setFont(Font.font("Silom",20));
+        finalScore.setFont(Font.font("Silom", 20));
         finalScoreText.setTranslateX(-50);
         finalScore.setTranslateX(-30);
         finalScore.setTranslateY(-2);
-
 
         HBox finalScoresHBox = new HBox();
         finalScoresHBox.setLayoutX(WIDTH / 2 - 50);
@@ -343,6 +293,7 @@ public class Pong extends Application {
         enter.setTranslateX(150);
         enter.setTranslateY(10);
 
+        //VBOX holds the text field and enter button for scoreboard function
         VBox enterNameArea = new VBox();
         enterNameArea.setLayoutX(WIDTH / 2 - 180);
         enterNameArea.setLayoutY(HEIGHT / 2);
@@ -364,15 +315,10 @@ public class Pong extends Application {
         tbv.setTranslateX(-60);
         tbv.setTranslateY(20);
 
-
         //Defines the pane hierarchy for the GAME OVER SCREEN
-        enterNameArea.getChildren().
-
-                addAll(enterLabel, enterName, enter, tbv);
+        enterNameArea.getChildren().addAll(enterLabel, enterName, enter, tbv);
         tbv.setVisible(false);
-        p3.getChildren().
-
-                addAll(quit2, restart, enterNameArea, finalScoresHBox, viewGameOverImage);
+        p3.getChildren().addAll(quit2, restart, enterNameArea, finalScoresHBox, viewGameOverImage);
 
         //Event listeners for GAME OVER SCREEN
         enterName.textProperty().
@@ -380,8 +326,9 @@ public class Pong extends Application {
                 addListener(e ->
 
                 {
-                    //  enter.setDisable(false);
+                    //enter.setDisable(false);
                 });
+
         enter.setOnMouseClicked(e ->
 
         {
@@ -410,10 +357,11 @@ public class Pong extends Application {
             ptBall.play();
         });
 
+        //Listnes to the check box for contrast and updates accordingly
         checkForContrast.setOnAction((event) -> {
             highContrast = checkForContrast.isSelected();
             System.out.println(highContrast);
-            if (highContrast==true) {
+            if (highContrast == true) {
                 //Welcome Screen
                 welcome.setFill(fontHighContrast);
                 instructions.setFill(fontHighContrast);
@@ -442,10 +390,7 @@ public class Pong extends Application {
                 viewGameOverImage.setImage(gameOverImageBW);
 
 
-
-            }
-
-            else {
+            } else {
                 //Welcome Screen
                 welcome.setFill(welcomeFont);
                 instructions.setFill(instructionsColor);
@@ -457,10 +402,10 @@ public class Pong extends Application {
                 ball.setFill(ballColor);
                 humanPaddle.setFill(Color.BLUE);
                 computerPaddle.setFill(Color.RED);
-                scoreLabel.setFill(Color.CYAN);
-                score.setTextFill(Color.CYAN);
-                livesLabel.setFill(Color.CYAN);
-                currentLives.setTextFill(Color.CYAN);
+                scoreLabel.setFill(welcomeFont);
+                score.setTextFill(welcomeFont);
+                livesLabel.setFill(welcomeFont);
+                currentLives.setTextFill(welcomeFont);
 
                 //Game Over Screen
                 quit2.setStyle("-fx-background-color: #FF00FF; ");
@@ -470,9 +415,6 @@ public class Pong extends Application {
                 finalScore.setTextFill(Color.LIMEGREEN);
                 enter.setStyle("-fx-background-color: #FF00FF; ");
                 viewGameOverImage.setImage(gameOverImage);
-
-
-
 
 
             }
@@ -518,7 +460,7 @@ public class Pong extends Application {
         //Reset animation path
         // ballStartPath = new Line(15, rand.nextInt(HEIGHT), 700, HEIGHT);
         //ballStartPath = new Line(15, 20, 600, HEIGHT);
-        ballStartPath=new Line(WIDTH-PLAYER_WIDTH, rand.nextInt(HEIGHT), 15, rand.nextInt(HEIGHT));
+        ballStartPath = new Line(WIDTH - PLAYER_WIDTH, rand.nextInt(HEIGHT), 15, rand.nextInt(HEIGHT));
         ptBall.stop();
         ptBall.setPath(ballStartPath);
 
@@ -607,6 +549,9 @@ public class Pong extends Application {
         //System.out.println("the y intercept: " + slope * (-15) + ballPath.getStartY());
     }
 
+    /**
+     * Returns a copy of the arrayList inputted as a parameter
+     */
     public Line clone(Line l) {
         return new Line(l.getStartX(), l.getStartY(), l.getEndX(), l.getEndY());
     }
@@ -616,7 +561,7 @@ public class Pong extends Application {
      */
     public void animateY() {
         //System.out.println("animateY called");
-        if ((ball.getTranslateY() == HEIGHT)  && (ball.getTranslateX()>PLAYER_WIDTH&&ball.getTranslateX()<WIDTH-PLAYER_WIDTH)) {
+        if ((ball.getTranslateY() == HEIGHT) && (ball.getTranslateX() > PLAYER_WIDTH && ball.getTranslateX() < WIDTH - PLAYER_WIDTH)) {
             //Ball hitting the bottom of the screen
             System.out.println("hitting the bottom coming from the left");
             double touchX = ballPath.getEndX();
@@ -652,7 +597,7 @@ public class Pong extends Application {
                 //ball coming from the right
                 nX = PLAYER_WIDTH;
             }
-            nY=ballPath.getStartY();
+            nY = ballPath.getStartY();
             //nY = lineCoefficients.get(0) * nX + lineCoefficients.get(1);
 
             if (nY < 0) {
@@ -669,7 +614,7 @@ public class Pong extends Application {
             ptBall.setRate(nRate);
             ptBall.play();
         }
-        if (ball.getTranslateY() == 0 &&(ball.getTranslateX()>PLAYER_WIDTH&&ball.getTranslateX()<WIDTH-PLAYER_WIDTH)) {
+        if (ball.getTranslateY() == 0 && (ball.getTranslateX() > PLAYER_WIDTH && ball.getTranslateX() < WIDTH - PLAYER_WIDTH)) {
             //ball hits the top of the window
             double touchX = ballPath.getEndX();
             double touchY = 0;
@@ -704,7 +649,7 @@ public class Pong extends Application {
             }
 
             //nY = lineCoefficients.get(0) * nX + lineCoefficients.get(1);
-            nY=ballPath.getStartY();
+            nY = ballPath.getStartY();
             if (nY < 0) {
                 System.out.println("adjusting y to be pos");
                 nY = 0 - nY;
@@ -720,7 +665,6 @@ public class Pong extends Application {
             ptBall.play();
         }
     }
-
 
 
     /**
@@ -763,7 +707,7 @@ public class Pong extends Application {
             ptBall.stop();
             //ptBall.setPath(new Line(touchX, touchY, nX, nY));
             ptBall.setPath(new Line(touchX, touchY, rand.nextInt(HEIGHT), nY));
-            ptBall.setRate(nRate+0.2);
+            ptBall.setRate(nRate + 0.2);
             ptBall.play();
 
 
@@ -806,7 +750,7 @@ public class Pong extends Application {
                 ptBall.stop();
                 // ptBall.setPath(new Line(touchX, touchY, nX, nY));
                 ptBall.setPath(new Line(touchX, touchY, rand.nextInt(HEIGHT), nY));
-                ptBall.setRate(nRate+0.2);
+                ptBall.setRate(nRate + 0.2);
                 ptBall.play();
 
             } else {
@@ -820,7 +764,7 @@ public class Pong extends Application {
                     ptBall.stop();
                     //  ptBall.setPath(new Line(touchX, touchY, nX, nY));
                     ptBall.setPath(new Line(touchX, touchY, rand.nextInt(HEIGHT), nY));
-                    ptBall.setRate(nRate+0.2);
+                    ptBall.setRate(nRate + 0.2);
                     ptBall.play();
                 } else {
                     //missed paddle and no more lives--> end game
@@ -830,17 +774,7 @@ public class Pong extends Application {
                     ptBall.stop();
                 }
             }
-
         }
-    }
-
-    public void setToHighContrast(){
-
-
-        fontHighContrast = Color.WHITE;
-        paddleAndBall = Color.WHITE;
-        //buttonColor = "";
-
     }
 }
 
