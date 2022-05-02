@@ -33,7 +33,7 @@ public class Pong extends Application {
     private static final double BALL_RADIUS = 15;
     private int playerScore = 0;
     private int lives = 3;
-    private static List<Players1> scoreBoard = new ArrayList<Players1>();//arrayList to store scores for scoreboards
+    private static List<Players> scoreBoard = new ArrayList<Players>();//arrayList to store scores for scoreboards
     private boolean highContrast = false;
 
     //Normal Colors
@@ -299,9 +299,9 @@ public class Pong extends Application {
         enterNameArea.setLayoutY(HEIGHT / 2);
 
         // Create two columns for the scoreboard table
-        TableColumn<String, Players1> cl1 = new TableColumn<>("Player Name");
+        TableColumn<String, Players> cl1 = new TableColumn<>("Player Name");
         cl1.setCellValueFactory(new PropertyValueFactory<>("name"));
-        TableColumn<Integer, Players1> cl2 = new TableColumn<>("Player Score");
+        TableColumn<Integer, Players> cl2 = new TableColumn<>("Player Score");
         cl2.setCellValueFactory(new PropertyValueFactory<>("score"));
 
         // Add two columns into TableView for the scoreboard table
@@ -332,7 +332,7 @@ public class Pong extends Application {
         enter.setOnMouseClicked(e ->
 
         {
-            addScores(new Players1(enterName.getText(), playerScore));
+            addScores(new Players(enterName.getText(), playerScore));
             System.out.println(scoreBoard);
             updateBoard();
             tbv.setVisible(true);
@@ -455,7 +455,13 @@ public class Pong extends Application {
         tbv.getItems().clear();
 
         //Unselects the checkbox ?
-        checkForContrast.setSelected(false);
+        if(highContrast){
+            checkForContrast.setSelected(true);
+        }
+        else{
+            checkForContrast.setSelected(false);
+        }
+
 
         //Reset animation path
         // ballStartPath = new Line(15, rand.nextInt(HEIGHT), 700, HEIGHT);
@@ -487,13 +493,11 @@ public class Pong extends Application {
     /**
      * Arranges the best scores of all the players and their corresponding names ordered from highest to lowest scores
      */
-    public static void addScores(Players1 p) {
-        String name;
-        double gpa;
+    public static void addScores(Players p) {
         int index, ind = 0;
 
         if (scoreBoard.isEmpty()) {
-            scoreBoard.add(new Players1(p.getName(), p.getScore()));
+            scoreBoard.add(new Players (p.getName(), p.getScore()));
         } else {
             index = scoreBoard.size();
             if (p.getScore() > scoreBoard.get(index - 1).getScore()) {
@@ -507,9 +511,9 @@ public class Pong extends Application {
                     }
                     ind = index;
                 }
-                scoreBoard.add(ind, new Players1(p.getName(), p.getScore()));
+                scoreBoard.add(ind, new Players(p.getName(), p.getScore()));
             } else {
-                scoreBoard.add(ind, new Players1(p.getName(), p.getScore()));
+                scoreBoard.add(ind, new Players(p.getName(), p.getScore()));
             }
         }
     }
@@ -522,7 +526,7 @@ public class Pong extends Application {
         tbv.getItems().clear();
 
         // Load objects into table
-        for (Players1 p : scoreBoard) {
+        for (Players p : scoreBoard) {
             tbv.getItems().add(p);
         }
     }
@@ -777,44 +781,7 @@ public class Pong extends Application {
         }
     }
 }
-/**
- * Class defines A player with a name and a score and allows them to be added to the scoreboard.
- */
-class Players {
 
-    private String name;
-    private int score;
-
-
-    public Players(String name, int score){
-        this.name=name;
-        this.score=score;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getScore() {
-        return score;
-    }
-
-    public void setScore(int score) {
-        this.score = score;
-    }
-
-    @Override
-    public String toString() {
-        return "Players{" +
-                "name='" + name + '\'' +
-                ", score=" + score +
-                '}';
-    }
-}
 
 
 

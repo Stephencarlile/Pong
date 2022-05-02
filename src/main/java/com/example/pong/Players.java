@@ -2,13 +2,13 @@ package com.example.pong;
 /**
  * Class defines A player with a name and a score and allows them to be added to the scoreboard.
  */
-public class Players1 {
+public class Players {
 
     private String name;
     private int score;
 
 
-    public Players1(String name, int score){
+    public Players(String name, int score){
         this.name=name;
         this.score=score;
     }
