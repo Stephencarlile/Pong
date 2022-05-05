@@ -3,6 +3,7 @@ package com.example.pong;
 import javafx.animation.Interpolator;
 import javafx.animation.PathTransition;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -19,7 +20,7 @@ import javafx.util.Duration;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
+
 
 /**
  * Class defines Nicolas and Stephen's version of the classic PONG GAME
@@ -37,6 +38,8 @@ public class Pong extends Application {
     private int lives = 3;
     private static List<Players> scoreBoard = new ArrayList<Players>();//arrayList to store scores for scoreboards
     private boolean highContrast = false;
+    public boolean checkingWord = false;
+    final String[] typed = {""};
 
     double speedRate = 1;
 
@@ -77,6 +80,7 @@ public class Pong extends Application {
     Circle ball = new Circle(0, 0, BALL_RADIUS);
     Label score = new Label("" + playerScore);
     Label currentLives = new Label("" + lives);
+    Text type2AddLives = new Text("Type the following word in the next second to increase your number of lives! \n The word is: ");
 
     //Ball global animation declarations
     PathTransition ptBall = new PathTransition();
@@ -85,6 +89,8 @@ public class Pong extends Application {
     Label finalScore = new Label("" + playerScore);
     // New Table View
     TableView tbv = new TableView();
+
+
 
     //-----------------------------------------
     //Declares the 3 panes, one for each screen
@@ -188,14 +194,19 @@ public class Pong extends Application {
         currentLives.setTextFill(Color.CYAN);
         currentLives.setFont(Font.font("Silom", 14));
 
+        type2AddLives.setX(250);
+        type2AddLives.setY(300);
+
         // defines the pane hierarchy for the WELCOME SCREEN
-        p2.getChildren().addAll(humanPaddle, computerPaddle, ball, quit, scoreLabel, score, currentLives, livesLabel);
+        p2.getChildren().addAll(humanPaddle, computerPaddle, ball, quit, scoreLabel, score, currentLives, livesLabel, type2AddLives);
+        type2AddLives.setVisible(false);
 
         //EVENT Listeners for GAME SCREEN
         quit.setOnMouseClicked(e -> {
             finalScore.setText("" + playerScore);
             primaryStage.setScene(overScreen);
             ptBall.stop();
+
         });
 
         ball.translateYProperty().addListener(ov ->
@@ -236,6 +247,13 @@ public class Pong extends Application {
                 case UP:
                     humanPaddle.setY(humanPaddle.getY() - 10);
                     break;
+            }
+        });
+
+        gameScreen.setOnKeyPressed(e -> {
+            if (checkingWord) {
+                System.out.println(e.getCode().getChar());
+                typed[0] = typed[0] + e.getCode().getChar();
             }
         });
 
@@ -391,6 +409,8 @@ public class Pong extends Application {
                 score.setTextFill(fontHighContrast);
                 livesLabel.setFill(fontHighContrast);
                 currentLives.setTextFill(fontHighContrast);
+                type2AddLives.setFill(Color.CYAN);
+
 
                 //Game Over Screen
                 quit2.setStyle("{ -fx-text-fill: white; }");
@@ -418,6 +438,7 @@ public class Pong extends Application {
                 score.setTextFill(welcomeFont);
                 livesLabel.setFill(welcomeFont);
                 currentLives.setTextFill(welcomeFont);
+                type2AddLives.setFill(Color.WHITE);
 
                 //Game Over Screen
                 quit2.setStyle("-fx-background-color: #FF00FF; ");
@@ -479,6 +500,7 @@ public class Pong extends Application {
         ptBall.setPath(ballStartPath);
 
         ptBall.setDuration(Duration.seconds(3));
+
 
     }
 
@@ -695,6 +717,7 @@ public class Pong extends Application {
                     lives--;
                     currentLives.setText("" + lives);
                     ptBall.stop();
+                    nX = rand.nextInt(WIDTH - 15) + 15;
                     setNewAnimationPath(touchX, touchY, nY, nX);
                     ptBall.play();
                     typeWordForExtraLife();
@@ -747,70 +770,55 @@ public class Pong extends Application {
      * Allows the player to redeem a life by typing in a random word out of the given list within a specific time period.
      */
     public void typeWordForExtraLife() {
-        String[] words = {"accuracy", "finesse", "champion", "undefeated", "achievement", "winner", "victorious", "fast-typer"};
-        String wordToType = words[rand.nextInt(words.length)];
-        AtomicReference<String> typedWord = new AtomicReference<>("");
-
-        Text type2AddLives = new Text("Type the following word in the next second to increase your number of lives! \n The word is: " + wordToType);
-        type2AddLives.setX(400);
-        type2AddLives.setY(300);
-
-        if (highContrast) {
-            type2AddLives.setFill(Color.WHITE);
-        } else {
-            type2AddLives.setFill(Color.CYAN);
-        }
-
-        p2.getChildren().add(type2AddLives);
+        Timer t = new Timer();
+        String word = generateWord();
+        type2AddLives.setText("Type the following word to increase your number of lives! \n The word is: " + word);
+        type2AddLives.setFill(Color.WHITE);
 
 
-        Timer timer = new Timer();
-        TimerTask task = new TimerTask() {
+        type2AddLives.setVisible(true);
+        checkingWord = true;
+
+        long delay = 3000L;
+        t.schedule(new TimerTask() {
+            @Override
             public void run() {
-                gameScreen.setOnKeyPressed(e -> {
-                    System.out.println(e.getCode().getChar());
-                    typedWord.updateAndGet(v -> v + e.getCode().getChar());
+                Platform.runLater(() -> {
+                    checkingWord = false;
+                    String typedWord = typed[0];
+                    System.out.println(typedWord);
+
+                    if (typedWord.equalsIgnoreCase(word)) {
+                        System.out.println((typedWord.equalsIgnoreCase(word)));
+                        System.out.println(word);
+                        lives++;
+                        currentLives.setText("" + lives);
+                        System.out.println(lives);
+
+                    }
+                    type2AddLives.setVisible(false);
+                    typed[0] = "";
+                    //timeIsUp.set(true);
+                    t.cancel();
                 });
             }
+        }, delay);
 
-        };
-        System.out.println(typedWord.toString());
-        timer.schedule(task, 3000);
-        if (typedWord.toString().equalsIgnoreCase(wordToType)) {
-            lives++;
-        }
+    }
 
-        p2.getChildren().remove(type2AddLives);
+    /**
+     * Returns a word at random from the set array of words
+     */
+
+    public String generateWord() {
+        String[] words = {"accuracy", "finesse", "champion", "undefeated", "achievement", "winner", "victorious", "fast-typer"};
+        String wordToType = words[rand.nextInt(words.length)];
+
+        return wordToType;
+
     }
 }
 
-/**
- * Simple demo that uses java.util.Timer to schedule a task
- * to execute once 5 seconds have passed.
- */
-
-class Reminder {
-    Timer timer;
-
-    public Reminder(int seconds) {
-        timer = new Timer();
-        timer.schedule(new RemindTask(), seconds * 1000);
-    }
-
-    class RemindTask extends TimerTask {
-        public void run() {
-            System.out.println("Time's up!");
-            timer.cancel(); //Terminate the timer thread
-        }
-    }
-
-    public static void main(String args[]) {
-        new Reminder(5);
-        System.out.println("Task scheduled.");
-    }
-}
-
-//  read key press event to match word to get prize
 
 
 
