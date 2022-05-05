@@ -26,6 +26,15 @@ import java.util.Random;
  * Class defines Nicolas and Stephen's version of the classic PONG GAME
  * CS2040 Final Project
  */
+
+// private Line ballStartPath = new Line(785, 20, 100, HEIGHT);
+//private Line ballStartPath = new Line(15, rand.nextInt(HEIGHT), 700, HEIGHT);
+//private Line ballStartPath = new Line(15, 20, 700, HEIGHT);
+//private Line ballStartPath = new Line(15, 600, 500, 0);//hits top right  from bottom left
+//private Line ballStartPath = new Line(785, 600, 200, 0);//hits top left  from bottom right
+//private Line ballStartPath = new Line(785, 20, 200,HEIGHT);//hits bottom left from top right
+// private Line ballStartPath = new Line(15, 20, 600, HEIGHT);//hits bottom right from top left
+//private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, HEIGHT/2, 15, HEIGHT/2);//hits bottom right from top left
 public class COPY extends Application {
     //Global variable declarations
     private static final int WIDTH = 800;
