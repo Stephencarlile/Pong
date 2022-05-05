@@ -1,4 +1,5 @@
 package com.example.pong;
+
 /**
  * Class defines A player with a name and a score and allows them to be added to the scoreboard.
  */
