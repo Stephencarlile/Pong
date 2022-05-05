@@ -19,6 +19,7 @@ import javafx.util.Duration;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Class defines Nicolas and Stephen's version of the classic PONG GAME
@@ -64,7 +65,7 @@ public class Pong extends Application {
     //private Line ballStartPath = new Line(785, 20, 200,HEIGHT);//hits bottom left from top right
     // private Line ballStartPath = new Line(15, 20, 600, HEIGHT);//hits bottom right from top left
     //private Line ballStartPath = new Line(WIDTH-PLAYER_WIDTH, HEIGHT/2, 15, HEIGHT/2);//hits bottom right from top left
-    private Line ballStartPath = new Line(WIDTH - PLAYER_WIDTH, rand.nextInt(HEIGHT-10)+10, 15, rand.nextInt(HEIGHT-10)+10);
+    private Line ballStartPath = new Line(WIDTH - PLAYER_WIDTH, rand.nextInt(HEIGHT - 10) + 10, 15, rand.nextInt(HEIGHT - 10) + 10);
 
     //Global node declarations
     //global window widgets for the START SCREEN
@@ -226,9 +227,9 @@ public class Pong extends Application {
         });
 
 
-        gameScreen.addEventFilter(KeyEvent.KEY_PRESSED, e-> {
-           // System.out.println(e);
-                    switch (e.getCode()) {
+        gameScreen.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+            // System.out.println(e);
+            switch (e.getCode()) {
                 case DOWN:
                     humanPaddle.setY(humanPaddle.getY() + 10);
                     break;
@@ -473,9 +474,7 @@ public class Pong extends Application {
 
 
         //Resets animation path
-        // ballStartPath = new Line(15, rand.nextInt(HEIGHT), 700, HEIGHT);
-        //ballStartPath = new Line(15, 20, 600, HEIGHT);
-        ballStartPath = new Line(WIDTH - PLAYER_WIDTH, rand.nextInt(WIDTH-10)+10, 15, rand.nextInt(HEIGHT-10)+10);
+        ballStartPath = new Line(WIDTH - PLAYER_WIDTH, rand.nextInt(WIDTH - 10) + 10, 15, rand.nextInt(HEIGHT - 10) + 10);
         ptBall.stop();
         ptBall.setPath(ballStartPath);
 
@@ -489,14 +488,12 @@ public class Pong extends Application {
     public void startGame() {
         //BALL ANIMATION
         ptBall.setDuration(javafx.util.Duration.seconds(3));
-        // Line ballPath = new Line(700, HEIGHT, 15, 100);
         ptBall.setPath(ballStartPath);//start going left
         ptBall.setNode(ball);
         ptBall.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
         ptBall.setInterpolator(Interpolator.LINEAR);
         ptBall.setCycleCount(1);
         ptBall.setAutoReverse(false);
-
         ptBall.play();
 
     }
@@ -522,7 +519,6 @@ public class Pong extends Application {
                         ind = index;
                         index = 0;
                     }
-                    //ind = index;
                 }
                 list.add(ind, new Players(p.getName(), p.getScore()));
             } else {
@@ -542,43 +538,21 @@ public class Pong extends Application {
         ArrayList<Players> board = readScores();
         Collections.sort(board);
 
-
-        // Load objects into table
+        // Load player objects into table
         for (Players p : board) {
             tbv.getItems().add(p);
         }
     }
 
     /**
-     * Returns an ArrayList holding the slope and y-intercept of a line given two points.
-     */
-    public ArrayList<Double> calcSlopeAndInt(double x1, double y1, double x2, double y2) {
-        double m = 0;
-        double b = 0;
-
-        m = (y2 - y1) / (x2 - x1);
-        b = y1 - m * x1;
-
-        ArrayList<Double> mAndB = new ArrayList<Double>();
-
-        mAndB.add(m);
-        mAndB.add(b);
-
-        return mAndB;
-
-        //b = m(-15) + yA---> y=mx+b ==> b=y-mx
-        // System.out.println("Start Y: " + ballPath.getStartY());
-        //System.out.println("the y intercept: " + slope * (-15) + ballPath.getStartY());
-    }
-
-
-    /** Calculate Eucledian distance between 2 points in 2D.
+     * Calculate Eucledian distance between 2 points in 2D.
      * p1 = (x1,y1)
      * p2 = (x2,y2)
+     *
      * @return distance
      */
-    private double euclidianDistance(double x1, double y1, double x2, double y2) {
-        return  Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2-y1, 2));
+    private double calcDistance(double x1, double y1, double x2, double y2) {
+        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }
 
     /**
@@ -587,27 +561,15 @@ public class Pong extends Application {
      */
     public void animateY() {
         //System.out.println("animateY called");
-        if ((ball.getTranslateY() == HEIGHT) && (ball.getTranslateX() > PLAYER_WIDTH && ball.getTranslateX() < WIDTH - PLAYER_WIDTH)) {
+        if ((ball.getTranslateY() == HEIGHT)) {//&& (ball.getTranslateX() > PLAYER_WIDTH && ball.getTranslateX() < WIDTH - PLAYER_WIDTH)) {
             //Ball hitting the bottom of the screen
             System.out.println("hitting the bottom coming from the left");
             double touchX = ballPath.getEndX();
             double touchY = HEIGHT;
-            double d = touchX - ballPath.getStartX();
             double nY;
             double nX;
 
-//            if (ballPath.getStartX() <= WIDTH / 2) {
-//                //ball coming from the left
-//                nX = touchX + d;
-//
-//            } else {
-//                //ball coming from the right
-//                nX = touchX - d;
-//            }
-
-            //ArrayList<Double> lineCoefficients = calcSlopeAndInt(touchX, touchY, nX, nY);
             if (ballPath.getStartX() <= WIDTH / 2) {
-
                 //ball coming from the left
                 nX = WIDTH - PLAYER_WIDTH;
 
@@ -615,32 +577,18 @@ public class Pong extends Application {
                 //ball coming from the right
                 nX = PLAYER_WIDTH;
             }
-            nY = ballPath.getStartY();
-            // nY = lineCoefficients.get(0) * nX + lineCoefficients.get(1);
-
-            nY=rand.nextInt(HEIGHT-10)+10;
+            nY = rand.nextInt(HEIGHT - 10) + 10;
             ptBall.stop();
             setNewAnimationPath(touchX, touchY, nY, nX);
             ptBall.play();
         }
-        if (ball.getTranslateY() == 0 && (ball.getTranslateX() > PLAYER_WIDTH && ball.getTranslateX() < WIDTH - PLAYER_WIDTH)) {
+        if (ball.getTranslateY() == 0) {//&& (ball.getTranslateX() > PLAYER_WIDTH && ball.getTranslateX() < WIDTH - PLAYER_WIDTH)) {
             //ball hits the top of the window
             double touchX = ballPath.getEndX();
             double touchY = 0;
             double d = touchX - ballPath.getStartX();
-            double nY = ballPath.getStartY();
+            double nY;
             double nX;
-
-            if (ballPath.getStartX() <= WIDTH / 2) {
-                //ball coming from the left
-                nX = touchX + d;
-
-            } else {
-                //ball coming from the right
-                nX = touchX - d;
-            }
-
-            //ArrayList<Double> lineCoefficients = calcSlopeAndInt(touchX, touchY, nX, nY);
 
             if (ballPath.getStartX() <= WIDTH / 2) {
                 //ball coming from the left
@@ -651,8 +599,7 @@ public class Pong extends Application {
                 nX = PLAYER_WIDTH;
             }
 
-            //nY = lineCoefficients.get(0) * nX + lineCoefficients.get(1);
-            nY=rand.nextInt(HEIGHT-10)+10;
+            nY = rand.nextInt(HEIGHT - 10) + 10;
 
             ptBall.stop();
             setNewAnimationPath(touchX, touchY, nY, nX);
@@ -664,22 +611,22 @@ public class Pong extends Application {
         // length of the previous path
         speedRate *= 0.999;
 
-        double oldDistance = euclidianDistance(ballPath.getStartX(), ballPath.getStartY(), ballPath.getEndX(), ballPath.getEndY());
+        double oldDistance = calcDistance(ballPath.getStartX(), ballPath.getStartY(), ballPath.getEndX(), ballPath.getEndY());
 
         ptBall.setPath(new Line(touchX, touchY, nX, nY));
-        double newDistance = euclidianDistance(touchX, touchY, nX, nY);
+        double newDistance = calcDistance(touchX, touchY, nX, nY);
         double oldDuration = ptBall.getDuration().toSeconds();
         double newDuration = (oldDuration / oldDistance * newDistance) * speedRate;
         ptBall.setDuration(Duration.seconds(newDuration));
 
-
-        System.out.println("old distance: " + oldDistance);
-        System.out.println("new distance: " + newDistance);
-        System.out.println("old Duration: " + oldDuration);
-        System.out.println("new Duration: " + oldDuration);
-        System.out.println("Old Speed: " + oldDistance / oldDuration);
-        System.out.println("New Speed: " + newDistance / newDuration);
-        System.out.println("Rate: "+ ptBall.getRate());
+//Debugging purposes:
+//        System.out.println("old distance: " + oldDistance);
+//        System.out.println("new distance: " + newDistance);
+//        System.out.println("old Duration: " + oldDuration);
+//        System.out.println("new Duration: " + oldDuration);
+//        System.out.println("Old Speed: " + oldDistance / oldDuration);
+//        System.out.println("New Speed: " + newDistance / newDuration);
+//        System.out.println("Rate: "+ ptBall.getRate());
     }
 
     /**
@@ -693,10 +640,9 @@ public class Pong extends Application {
             double touchX = WIDTH - PLAYER_WIDTH;
             double touchY = ballPath.getEndY();
             double d = ballPath.getStartY() - touchY;
-            double nY = touchY - d;
-            double nX = ballPath.getStartX();
+            double nY;
+            double nX;
 
-//            ArrayList<Double> lineCoefficients = calcSlopeAndInt(touchX, touchY, nX, nY);
 
             if (ballPath.getStartY() >= HEIGHT / 2) {
                 //hit the computer paddle from the bottom half of the screen
@@ -705,13 +651,11 @@ public class Pong extends Application {
                 //hit the computer paddle from the top half of the screen
                 nY = HEIGHT;
             }
-          //  nX = ((1 / lineCoefficients.get(0)) * (nY - lineCoefficients.get(1)));
-            nX=rand.nextInt(WIDTH-15)+15;
+            nX = rand.nextInt(WIDTH - 15) + 15;
 
             ptBall.stop();
             setNewAnimationPath(touchX, touchY, nY, nX);
             ptBall.play();
-
 
         }
 
@@ -722,11 +666,7 @@ public class Pong extends Application {
             double d = ballPath.getStartY() - touchY;
             double nY = touchY - d;
             double nX = ballPath.getStartX();
-            double nDistance;
 
-            double oldDistance = Math.sqrt((Math.pow(ballPath.getStartX() - touchX, 2) + Math.pow(ballPath.getStartY() - touchY, 2)));
-
-            ArrayList<Double> lineCoefficients = calcSlopeAndInt(touchX, touchY, nX, nY);
 
             if (ballPath.getStartY() >= HEIGHT / 2) {
                 //hit the computer paddle from the bottom half of the screen
@@ -735,14 +675,12 @@ public class Pong extends Application {
                 //hit the computer paddle from the top half of the screen
                 nY = HEIGHT;
             }
-            nX = (1 / lineCoefficients.get(0) * (nY - lineCoefficients.get(1)));
-
             if (humanPaddle.getY() <= ball.getTranslateY() && ball.getTranslateY() <= (humanPaddle.getY() + PLAYER_HEIGHT)) {
                 //if it touches the human paddle
                 playerScore++;
                 score.setText("" + playerScore);
 
-                nX=rand.nextInt(WIDTH-15)+15;
+                nX = rand.nextInt(WIDTH - 15) + 15;
 
                 ptBall.stop();
                 setNewAnimationPath(touchX, touchY, nY, nX);
@@ -759,6 +697,7 @@ public class Pong extends Application {
                     ptBall.stop();
                     setNewAnimationPath(touchX, touchY, nY, nX);
                     ptBall.play();
+                    typeWordForExtraLife();
                 } else {
                     //missed paddle and no more lives--> end game
                     System.out.println("No more lives");
@@ -769,6 +708,7 @@ public class Pong extends Application {
             }
         }
     }
+
     /**
      * Saves the scoreboard to a file that will be read and whose data will be eventually displayed in our scoreboard table
      */
@@ -792,16 +732,81 @@ public class Pong extends Application {
         Scanner fileScan, playerScan;
         fileScan = new Scanner(new File(INPUT_FILE));
 
-        while (fileScan.hasNext())
-        {
+        while (fileScan.hasNext()) {
             name = fileScan.nextLine();
-            string_score=fileScan.nextLine();
+            string_score = fileScan.nextLine();
             score = Integer.parseInt(string_score);
 
             board.add(new Players(name, score));
         }
         return board;
 
+    }
+
+    /**
+     * Allows the player to redeem a life by typing in a random word out of the given list within a specific time period.
+     */
+    public void typeWordForExtraLife() {
+        String[] words = {"accuracy", "finesse", "champion", "undefeated", "achievement", "winner", "victorious", "fast-typer"};
+        String wordToType = words[rand.nextInt(words.length)];
+        AtomicReference<String> typedWord = new AtomicReference<>("");
+
+        Text type2AddLives = new Text("Type the following word in the next second to increase your number of lives! \n The word is: " + wordToType);
+        type2AddLives.setX(400);
+        type2AddLives.setY(300);
+
+        if (highContrast) {
+            type2AddLives.setFill(Color.WHITE);
+        } else {
+            type2AddLives.setFill(Color.CYAN);
+        }
+
+        p2.getChildren().add(type2AddLives);
+
+
+        Timer timer = new Timer();
+        TimerTask task = new TimerTask() {
+            public void run() {
+                gameScreen.setOnKeyPressed(e -> {
+                    System.out.println(e.getCode().getChar());
+                    typedWord.updateAndGet(v -> v + e.getCode().getChar());
+                });
+            }
+
+        };
+        System.out.println(typedWord.toString());
+        timer.schedule(task, 3000);
+        if (typedWord.toString().equalsIgnoreCase(wordToType)) {
+            lives++;
+        }
+
+        p2.getChildren().remove(type2AddLives);
+    }
+}
+
+/**
+ * Simple demo that uses java.util.Timer to schedule a task
+ * to execute once 5 seconds have passed.
+ */
+
+class Reminder {
+    Timer timer;
+
+    public Reminder(int seconds) {
+        timer = new Timer();
+        timer.schedule(new RemindTask(), seconds * 1000);
+    }
+
+    class RemindTask extends TimerTask {
+        public void run() {
+            System.out.println("Time's up!");
+            timer.cancel(); //Terminate the timer thread
+        }
+    }
+
+    public static void main(String args[]) {
+        new Reminder(5);
+        System.out.println("Task scheduled.");
     }
 }
 
