@@ -81,7 +81,6 @@ public class Pong extends Application {
     // New Table View
     TableView tbv = new TableView();
 
-
     //-----------------------------------------
     //Declares the 3 panes, one for each screen
     Pane p1 = new Pane();
@@ -100,7 +99,7 @@ public class Pong extends Application {
     //----------------------------------------------------
     @Override
     /**
-     * Defines the game windows and nodes + some game logic
+     * Defines the game windows and nodes + some game logic and sets even listeners
      */
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
