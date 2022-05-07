@@ -21,7 +21,6 @@ import javafx.util.Duration;
 import java.io.*;
 import java.util.*;
 
-
 /**
  * Class defines Nicolas and Stephen's version of the classic PONG GAME
  * CS2040 Final Project
